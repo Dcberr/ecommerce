@@ -6,34 +6,39 @@ services:
     container_name: postgres_db
     restart: always
     ports:
-      - "5432:5432"
+      - "${DATABASE_PORT}:5432"
+    env_file:
+      - .env
     environment:
-      POSTGRES_USER: ecommerce_admin
-      POSTGRES_PASSWORD: ecommerce_admin
-      POSTGRES_DB: ecommerce
+      POSTGRES_USER: ${DATABASE_USERNAME}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_NAME}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ecommerce -d ecommerce"]
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USERNAME} -d ${DATABASE_NAME}"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-  # ecommerce:
-  #   image: dcberr/ecommerce:0.0.1
-  #   container_name: ecommerce_service
-  #   restart: always
-  #   depends_on:
-  #     postgres:
-  #       condition: service_healthy
-  #   ports:
-  #     - "8080:8080"
-  #   environment:
-  #     SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/ecommerce
-  #     SPRING_DATASOURCE_USERNAME: ecommerce_admin
-  #     SPRING_DATASOURCE_PASSWORD: ecommerce_admin
-  #     SPRING_JPA_HIBERNATE_DDL_AUTO: update
-  #     SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.PostgreSQLDialect
+  ecommerce:
+    image: dcberr/ecommerce:0.37.1
+    container_name: ecommerce_service
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "${SERVER_PORT}:8003"
+    env_file:
+      - .env
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_NAME}
+      SPRING_DATASOURCE_USERNAME: ${DATABASE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${DATABASE_PASSWORD}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: ${HIBERNATE_DDL_AUTO}
+      SPRING_JPA_DATABASE_PLATFORM: ${HIBERNATE_DIALECT}
+      SPRING_APPLICATION_NAME: ${SPRING_APP_NAME}
 
 volumes:
   postgres_data:

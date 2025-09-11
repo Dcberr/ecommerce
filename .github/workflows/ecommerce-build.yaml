@@ -63,8 +63,7 @@ jobs:
           docker build \
             -t $IMAGE \
             -f ./Dockerfile \
-            --platform ${{ env.DOCKER_PLATFORM }} \
-            ./ecommerce
+            --platform ${{ env.DOCKER_PLATFORM }} .
 
           echo "Pushing $IMAGE"
           docker push $IMAGE

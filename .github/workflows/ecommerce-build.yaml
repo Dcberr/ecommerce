@@ -1,0 +1,71 @@
+name: Build and Push Docker image
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  DOCKER_REGISTRY: ${{ vars.DOCKER_REGISTRY }}
+  DOCKER_PLATFORM: ${{ vars.DOCKER_PLATFORM }}
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Install yq
+        run: |
+          sudo wget https://github.com/mikefarah/yq/releases/download/v4.44.1/yq_linux_amd64 -O /usr/bin/yq
+          sudo chmod +x /usr/bin/yq
+      
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Build with Maven
+        working-directory: ./file-chat-service
+        run:  mvn -B clean package -DskipTests
+
+      - name: Load configuration.yaml for ecommerce
+        id: config
+        run: |
+          SERVICE="ecommerce"
+          SERVICE_NAME=$(yq e ".\"$SERVICE\".\"service-name\"" configuration.yaml)
+          VERSION=$(yq e ".\"$SERVICE\".version" configuration.yaml)
+
+
+          TAG="${VERSION}"
+
+          echo "SERVICE_NAME=$SERVICE_NAME" >> $GITHUB_ENV
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "TAG=$TAG" >> $GITHUB_ENV
+
+          echo "service_name=$SERVICE_NAME" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+
+      - name: Build and Push Docker image
+        run: |
+          IMAGE="${{ env.DOCKER_REGISTRY }}/${{ env.SERVICE_NAME }}:${{ env.TAG }}"
+
+          echo "Building $IMAGE"
+          docker build \
+            -t $IMAGE \
+            -f ./${{ env.SERVICE_NAME }}/Dockerfile \
+            --platform ${{ env.DOCKER_PLATFORM }} \
+            ./file-chat-service
+
+          echo "Pushing $IMAGE"
+          docker push $IMAGE

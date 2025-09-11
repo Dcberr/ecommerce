@@ -62,8 +62,9 @@ jobs:
           echo "Building $IMAGE"
           docker build \
             -t $IMAGE \
-            -f ./${{ env.SERVICE_NAME }}/Dockerfile \
-            --platform ${{ env.DOCKER_PLATFORM }} .
+            -f ./Dockerfile \
+            --platform ${{ env.DOCKER_PLATFORM }} \
+            ./ecommerce
 
           echo "Pushing $IMAGE"
           docker push $IMAGE

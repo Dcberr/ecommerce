@@ -63,8 +63,7 @@ jobs:
           docker build \
             -t $IMAGE \
             -f ./${{ env.SERVICE_NAME }}/Dockerfile \
-            --platform ${{ env.DOCKER_PLATFORM }} .\
-            
+            --platform ${{ env.DOCKER_PLATFORM }} .
 
           echo "Pushing $IMAGE"
           docker push $IMAGE

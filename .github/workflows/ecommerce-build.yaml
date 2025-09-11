@@ -29,7 +29,6 @@ jobs:
           java-version: 21
 
       - name: Build with Maven
-        working-directory: ./file-chat-service
         run:  mvn -B clean package -DskipTests
 
       - name: Load configuration.yaml for ecommerce
@@ -64,8 +63,8 @@ jobs:
           docker build \
             -t $IMAGE \
             -f ./${{ env.SERVICE_NAME }}/Dockerfile \
-            --platform ${{ env.DOCKER_PLATFORM }} \
-            ./file-chat-service
+            --platform ${{ env.DOCKER_PLATFORM }} .\
+            
 
           echo "Pushing $IMAGE"
           docker push $IMAGE

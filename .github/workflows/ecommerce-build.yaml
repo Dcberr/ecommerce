@@ -35,7 +35,7 @@ jobs:
         id: config
         run: |
           SERVICE="ecommerce"
-          SERVICE_NAME=$(yq e ".\"$SERVICE\".\"service-name\"" configuration.yaml)
+          SERVICE_NAME=$(yq e ".\"$SERVICE\".\"service_name\"" configuration.yaml)
           VERSION=$(yq e ".\"$SERVICE\".version" configuration.yaml)
 
 

@@ -22,21 +22,21 @@ services:
       retries: 5
 
   ecommerce:
-    image: dcberr/ecommerce:0.37.1
+    image: dcberr/ecommerce:0.37.2
     container_name: ecommerce_service
     restart: always
     depends_on:
       postgres:
         condition: service_healthy
     ports:
-      - "${SERVER_PORT}:8003"
+      - "${SERVER_PORT}:8004"
     env_file:
       - .env
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_NAME}
       DATABASE_USERNAME: ${DATABASE_USERNAME}
       DATABASE_PASSWORD: ${DATABASE_PASSWORD}
-      HIBERNATE_DDL_AUTO: ${HIBERNATE_DDL_AUTO}
+      HIBERNATE_DDL_AUTO: none
       HIBERNATE_DIALECT: ${HIBERNATE_DIALECT}
       SPRING_APP_NAME: ${SPRING_APP_NAME}
       CLIENT_ID: ${CLIENT_ID}

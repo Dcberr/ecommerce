@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-backend-config
+  labels:
+    {{- include "common.labels.standard" . | nindent 4 }}
+data:
+  SERVER_PORT: "8004"
+  SPRING_APP_NAME: "ecommerce"
+
+  DATABASE_NAME: {{ .Values.global.postgresql.auth.database | default "ecommerce" }}
+  DATABASE_USERNAME: {{ .Values.global.postgresql.auth.username | default "ecommerce_admin" }}
+  DATABASE_HOST: {{ printf "%s-postgresql" .Release.Name }}
+  DATABASE_PORT: {{ .Values.global.postgresql.service.port | default "5432" | quote }}
+
+  HIBERNATE_DIALECT: "org.hibernate.dialect.PostgreSQLDialect"
+  HIBERNATE_DDL_AUTO: "update"
+  SHOW_SQL: "true"
+
+  REDIRECT_URI: {{ .Values.google.redirectUri | default "http://localhost:3000" }}
+  GOOGLE_EXPIRATION_TIME: "3600000"

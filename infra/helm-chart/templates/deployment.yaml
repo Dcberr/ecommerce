@@ -1,0 +1,31 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-backend
+  labels:
+    {{- include "common.labels.standard" . | nindent 4 }}
+    tier: backend
+spec:
+  replicas: {{ .Values.app.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "common.labels.matchLabels" . | nindent 6 }}
+      tier: backend
+  template:
+    metadata:
+      labels:
+        {{- include "common.labels.standard" . | nindent 8 }}
+        tier: backend
+    spec:
+      containers:
+      - name: backend
+        image: {{ .Values.app.image.repository }}:{{ .Values.app.image.tag | default .Chart.AppVersion }}
+        imagePullPolicy: {{ .Values.app.image.pullPolicy }}
+        ports:
+        - containerPort: 8004
+        envFrom:
+        - configMapRef:
+            name: {{ .Release.Name }}-backend-config
+        - secretRef:
+            name: {{ .Release.Name }}-backend-secrets

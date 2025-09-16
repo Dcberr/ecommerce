@@ -1,6 +1,15 @@
 server:
   port: ${SERVER_PORT}
 
+momo:
+  access-key: ${ACCESS_KEY}
+  secret-key: ${SECRET_KEY}
+  partner-code: ${PARTNER_CODE}
+  endpoint: ${END_POINT}
+  query-endpoint: ${QUERY_ENDPOINT}
+  ipn-url: ${IPN_URL}
+  momo-redirect-url: ${MOMO_REDIRECT_URL}
+
 spring:
   application:
     name: ${SPRING_APP_NAME}

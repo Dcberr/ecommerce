@@ -18,6 +18,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**").permitAll() // Public endpoints
                 .requestMatchers("/auth/google").permitAll()   // Endpoint để frontend gửi id_token
+                .requestMatchers("/payment/**").permitAll()
                 .anyRequest().authenticated()
             );
 

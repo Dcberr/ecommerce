@@ -1,7 +1,6 @@
 package com.hcmut.ecommerce.domain.payment.service.implement;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -10,7 +9,6 @@ import java.util.stream.Collectors;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.checkerframework.checker.units.qual.N;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -22,10 +20,15 @@ import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hcmut.ecommerce.domain.order.model.Order;
+import com.hcmut.ecommerce.domain.order.model.Order.OrderStatus;
+import com.hcmut.ecommerce.domain.order.repository.OrderRepository;
+import com.hcmut.ecommerce.domain.order.service.interfaces.OrderService;
 import com.hcmut.ecommerce.domain.payment.dto.request.MomoCallbackRequest;
 import com.hcmut.ecommerce.domain.payment.dto.request.MomoPaymentRequest;
 import com.hcmut.ecommerce.domain.payment.dto.response.MomoCallbackResponse;
 import com.hcmut.ecommerce.domain.payment.dto.response.MomoPaymentResponse;
+import com.hcmut.ecommerce.domain.payment.model.Escrow.EscrowStatus;
 import com.hcmut.ecommerce.domain.payment.service.interfaces.MomoPaymentService;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.NonFinal;
@@ -39,6 +42,8 @@ public class MomoPaymentServiceImpl implements MomoPaymentService {
     // private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2);
     // private final CustomerRepository customerRepository;
     // private final AuthService authService;
+    private final OrderService orderService;
+    private final OrderRepository orderRepository;
 
     @NonFinal
     @Value("${momo.access-key}")
@@ -99,23 +104,26 @@ public class MomoPaymentServiceImpl implements MomoPaymentService {
     }
 
     public MomoPaymentResponse createPaymentRequest(MomoPaymentRequest request) throws Exception {
-
-        String orderId = UUID.randomUUID().toString().replaceAll("[^0-9]", "");
         // log.info(orderId);
         String requestType = "payWithMethod";
-        String orderInfo = "Payment for " + orderId;
+        String orderInfo = "Payment for " + String.valueOf(request.getOrderId());
+        Order order = orderRepository.findById(request.getOrderId())
+                        .orElseThrow(() -> new RuntimeException("Order not found with id " + request.getOrderId()));
+
+        log.info(String.valueOf(order.getTotalAmount()));
+        log.info(order.getTotalAmount().toString());
 
         Map<String, String> requestBody = new LinkedHashMap<>();
         requestBody.put("accessKey", ACCESS_KEY);
-        requestBody.put("amount", request.getAmount());
+        requestBody.put("amount", String.valueOf(order.getTotalAmount().intValue()));
         requestBody.put("extraData", "eyJza3VzIjoiIn0=");
         requestBody.put("ipnUrl", IPN_URL);
-        requestBody.put("orderId", orderId);
+        requestBody.put("orderId", request.getOrderId());
         requestBody.put("orderInfo", orderInfo);
         requestBody.put("partnerCode", PARTNER_CODE);
         requestBody.put("redirectUrl",
                 MOMO_REDIRECT_URL);
-        requestBody.put("requestId", orderId);
+        requestBody.put("requestId", String.valueOf(request.getOrderId()));
         requestBody.put("requestType", requestType);
         // requestBody.put("extraData",
         // Base64.getEncoder().encodeToString("{\"key\":\"123\"}".getBytes()));
@@ -168,8 +176,16 @@ public class MomoPaymentServiceImpl implements MomoPaymentService {
 
         if (callback.getResultCode() == 0) {
             log.info("Payment success for order {}", callback.getOrderId());
-            return new MomoCallbackResponse("success", 0);
-            // TODO: Update trạng thái đơn hàng trong DB
+
+            Order order = orderRepository.findById(callback.getOrderId())
+                        .orElseThrow(() -> new RuntimeException("Order not found with id " + callback.getOrderId()));
+            
+            order.setOrderStatus(OrderStatus.DELIVERING);
+            order.getEscrow().setEscrowStatus(EscrowStatus.HOLDING);
+            orderRepository.save(order);
+
+            // return new MomoCallbackResponse("success", 0);
+            // // TODO: Update trạng thái đơn hàng trong DB
         } else {
             log.warn("Payment failed for order {}, message={}", callback.getOrderId(), callback.getMessage());
             // TODO: Update trạng thái thất bại

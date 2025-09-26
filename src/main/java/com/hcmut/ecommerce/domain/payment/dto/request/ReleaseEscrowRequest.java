@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class MomoPaymentRequest {
+public class ReleaseEscrowRequest {
     private String orderId;
-    // private String amount;
 }

@@ -19,9 +19,11 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.hcmut.ecommerce.domain.user.dto.request.GoogleLoginRequest;
 import com.hcmut.ecommerce.domain.user.dto.response.AuthResponse;
 import com.hcmut.ecommerce.domain.user.model.User;
+import com.hcmut.ecommerce.domain.user.model.User.UserRole;
 import com.hcmut.ecommerce.domain.user.repository.UserRepository;
 import com.hcmut.ecommerce.domain.user.service.interfaces.AuthService;
 import com.hcmut.ecommerce.domain.user.service.interfaces.GoogleTokenVerifierService;
+import com.hcmut.ecommerce.domain.wallet.model.Wallet;
 import com.hcmut.ecommerce.security.JwtUtil;
 
 import lombok.RequiredArgsConstructor;
@@ -67,13 +69,28 @@ public class AuthServiceImpl implements AuthService {
 
         // Nếu user chưa tồn tại thì lưu vào DB
         User user = userRepository.findByEmail(email).orElseGet(() ->
-                userRepository.save(User.builder()
-                        .email(email)
-                        .name(name)
-                        .picture(picture)
-                        .provider(User.AuthProvider.GOOGLE)
-                        .build())
+                {
+                    Wallet wallet = Wallet.builder()
+                            .amount(0f)  // số dư ban đầu
+                            .build();
+
+                    User newUser = User.builder()
+                            .email(email)
+                            .name(name)
+                            .userRole(UserRole.BUYER)
+                            .picture(picture)
+                            .provider(User.AuthProvider.GOOGLE)
+                            .wallet(wallet)
+                            .build();
+
+                    // thiết lập quan hệ 2 chiều
+                    wallet.setUser(newUser);
+
+                    return userRepository.save(newUser);
+                }
         );
+
+        
 
         // Sinh JWT cho hệ thống
         String jwt = jwtUtil.generateToken(user.getEmail());

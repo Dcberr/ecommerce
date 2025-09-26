@@ -17,12 +17,12 @@ import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @Slf4j
-@RequestMapping("/payment")
+@RequestMapping("/api/payment")
 @RequiredArgsConstructor
 public class MomoPaymentController {
     private final MomoPaymentService momoPaymentService;
 
-    @PostMapping("/create")
+    @PostMapping
     ApiResponse<MomoPaymentResponse> createMomoPayment(@RequestBody MomoPaymentRequest request) throws Exception{
         MomoPaymentResponse response = momoPaymentService.createPaymentRequest(request);
         return ApiResponse.success(response, "Create Momo Payment Successfully!");

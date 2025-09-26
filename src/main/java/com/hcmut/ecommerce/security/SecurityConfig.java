@@ -19,6 +19,14 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/**").permitAll() // Public endpoints
                 .requestMatchers("/auth/google").permitAll()   // Endpoint để frontend gửi id_token
                 .requestMatchers("/payment/**").permitAll()
+                .requestMatchers("/**").permitAll()
+                .requestMatchers(
+                        "/v3/api-docs/**",
+                        "/swagger-ui.html",
+                        "/swagger-ui/**",
+                        "/swagger-resources/**",
+                        "/webjars/**"
+                ).permitAll()
                 .anyRequest().authenticated()
             );
 

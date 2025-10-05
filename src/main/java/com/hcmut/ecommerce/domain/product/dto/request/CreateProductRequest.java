@@ -3,7 +3,7 @@ package com.hcmut.ecommerce.domain.product.dto.request;
 import java.util.List;
 
 import com.hcmut.ecommerce.domain.product.model.Product;
-import com.hcmut.ecommerce.domain.product.model.ProductUnitType;
+import com.hcmut.ecommerce.domain.product.model.Product.ProductUnitType;
 
 import io.micrometer.common.lang.NonNull;
 import lombok.Getter;

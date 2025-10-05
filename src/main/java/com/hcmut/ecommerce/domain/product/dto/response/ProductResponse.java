@@ -4,7 +4,7 @@ import java.util.stream.Collectors;
 import java.util.List;
 
 import com.hcmut.ecommerce.domain.product.model.Product;
-import com.hcmut.ecommerce.domain.product.model.ProductUnitType;
+import com.hcmut.ecommerce.domain.product.model.Product.ProductUnitType;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

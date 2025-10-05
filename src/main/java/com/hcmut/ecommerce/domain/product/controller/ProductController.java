@@ -50,7 +50,7 @@ public class ProductController {
   }
 
   @PostMapping("")
-  public ApiResponse<ProductResponse> createProdduct(@RequestBody CreateProductRequest request) throws Exception {
+  public ApiResponse<ProductResponse> createProduct(@RequestBody CreateProductRequest request) throws Exception {
     return ApiResponse.success(productService.createProduct(request), "Create Products Successfully!");
   }
 

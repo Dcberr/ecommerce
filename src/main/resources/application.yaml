@@ -1,6 +1,18 @@
 server:
   port: ${SERVER_PORT}
 
+logging:
+  level:
+    org.springframework.web.client.RestTemplate: DEBUG
+    org.apache.http: DEBUG
+
+
+ghtk:
+  api:
+    base-url: ${GHTK_BASE_URL}
+    token: ${GHTK_TOKEN}
+    ghtk-partner-code: ${GHTK_PARTNER_CODE}
+
 momo:
   access-key: ${ACCESS_KEY}
   secret-key: ${SECRET_KEY}

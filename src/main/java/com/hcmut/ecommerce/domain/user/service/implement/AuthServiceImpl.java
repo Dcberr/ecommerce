@@ -2,7 +2,12 @@ package com.hcmut.ecommerce.domain.user.service.implement;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
 import java.util.Map;
+import java.util.StringJoiner;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -17,14 +22,30 @@ import org.springframework.web.client.RestTemplate;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.hcmut.ecommerce.domain.user.dto.request.GoogleLoginRequest;
+import com.hcmut.ecommerce.domain.user.dto.request.IntrospectRequest;
 import com.hcmut.ecommerce.domain.user.dto.response.AuthResponse;
+import com.hcmut.ecommerce.domain.user.dto.response.IntrospectResponse;
+import com.hcmut.ecommerce.domain.user.model.Buyer;
+import com.hcmut.ecommerce.domain.user.model.Seller;
 import com.hcmut.ecommerce.domain.user.model.User;
 import com.hcmut.ecommerce.domain.user.model.User.UserRole;
 import com.hcmut.ecommerce.domain.user.repository.UserRepository;
 import com.hcmut.ecommerce.domain.user.service.interfaces.AuthService;
 import com.hcmut.ecommerce.domain.user.service.interfaces.GoogleTokenVerifierService;
+import com.hcmut.ecommerce.domain.user.service.interfaces.UserService;
 import com.hcmut.ecommerce.domain.wallet.model.Wallet;
 import com.hcmut.ecommerce.security.JwtUtil;
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.JWSObject;
+import com.nimbusds.jose.JWSVerifier;
+import com.nimbusds.jose.Payload;
+import com.nimbusds.jose.crypto.MACSigner;
+import com.nimbusds.jose.crypto.MACVerifier;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
+import com.nimbusds.oauth2.sdk.ParseException;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +57,7 @@ public class AuthServiceImpl implements AuthService {
 
     private final GoogleTokenVerifierService googleVerifier;
     private final UserRepository userRepository;
+    private final UserService userService;
     private final JwtUtil jwtUtil;
 
     private final RestTemplate restTemplate = new RestTemplate();
@@ -49,53 +71,29 @@ public class AuthServiceImpl implements AuthService {
     @Value("${spring.security.oauth2.client.registration.google.redirect-uri}")
     private String redirectUri;
 
+    @Value("${spring.security.oauth2.client.registration.google.expiration-time}")
+    private String expirationTime;
+
     @Override
     public AuthResponse loginWithGoogle(GoogleLoginRequest request) throws Exception {
-        log.info("Is running h");
-
-        // log.info(request.toString());
         
         String id_token = exchangeCodeForIdToken(request);
         GoogleIdToken.Payload payload = googleVerifier.verify(id_token);
         // log.info(payload.toString());
+        String jwt = null;
 
-        String email = payload.getEmail();
-        String name = (String) payload.get("name");
-        String picture = (String) payload.get("picture");
+        if (request.getUserRole().equals(UserRole.SELLER)) {
+            Seller seller = userService.sellerLogin(payload);
+            jwt = generateToken(seller);
+        } else if (request.getUserRole().equals(UserRole.ADMIN)) {
+            
+        } else {
+            Buyer buyer = userService.buyerLogin(payload);
+            jwt = generateToken(buyer);
+        }
 
-        log.info(email);
-        log.info(picture);
-        log.info(name);
+        return new AuthResponse(jwt);
 
-        // Nếu user chưa tồn tại thì lưu vào DB
-        User user = userRepository.findByEmail(email).orElseGet(() ->
-                {
-                    Wallet wallet = Wallet.builder()
-                            .amount(0f)  // số dư ban đầu
-                            .build();
-
-                    User newUser = User.builder()
-                            .email(email)
-                            .name(name)
-                            .userRole(UserRole.BUYER)
-                            .picture(picture)
-                            .provider(User.AuthProvider.GOOGLE)
-                            .wallet(wallet)
-                            .build();
-
-                    // thiết lập quan hệ 2 chiều
-                    wallet.setUser(newUser);
-
-                    return userRepository.save(newUser);
-                }
-        );
-
-        
-
-        // Sinh JWT cho hệ thống
-        String jwt = jwtUtil.generateToken(user.getEmail());
-
-        return new AuthResponse(jwt, email, name, picture);
     }
 
     @Override
@@ -108,12 +106,11 @@ public class AuthServiceImpl implements AuthService {
 
         // log.info("Exchange token with params: code={}, clientId={}, redirectUri={}", rawCode, clientId, redirectUri);
 
-
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("code", rawCode);
-        params.add("client_id", "257761733368-rs6t0vvag6rjielhh329o81t65t1lli4.apps.googleusercontent.com");
+        params.add("client_id", clientId);
         params.add("client_secret", clientSecret);
-        params.add("redirect_uri", "http://localhost:3000");
+        params.add("redirect_uri", redirectUri);
         params.add("grant_type", "authorization_code");
 
         HttpEntity<MultiValueMap<String, String>> exchangeRequest = new HttpEntity<>(params, headers);
@@ -128,6 +125,91 @@ public class AuthServiceImpl implements AuthService {
 
         throw new RuntimeException("Failed to exchange code for id_token");
     }
+
+
+    private String generateToken(User user) {
+        JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.HS256);
+
+        JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
+                .subject(user.getEmail())
+                .issuer("Dcberr")
+                .issueTime(new Date())
+                .expirationTime(new Date(
+                        Instant.now().plus( Long.parseLong(expirationTime) , ChronoUnit.SECONDS).toEpochMilli()))
+                .jwtID(UUID.randomUUID().toString())
+                .claim("scope", buildScope(user))
+                .build();
+
+        Payload payload = new Payload(jwtClaimsSet.toJSONObject());
+        JWSObject jwsObject = new JWSObject(jwsHeader, payload);
+
+        try {
+            jwsObject.sign(new MACSigner(clientSecret.getBytes()));
+            return jwsObject.serialize();
+        } catch (JOSEException e) {
+            log.error("Cannot create token", e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    public IntrospectResponse introspect(IntrospectRequest request) throws JOSEException, ParseException {
+        String token = request.getToken();
+
+        boolean isValid = true;
+
+        try {
+            verifyToken(token, false);
+        } catch (Exception e) {
+            isValid = false;
+        }
+
+        return IntrospectResponse.builder().valid(isValid).build();
+    }
+
+    private String buildScope(User user) {
+        StringJoiner stringJoiner = new StringJoiner(" ");
+
+        UserRole role = user.getUserRole();
+        if (role != null) {
+            stringJoiner.add("ROLE_" + role.toString());
+        }
+
+        return stringJoiner.toString();
+    }
+
+
+    private SignedJWT verifyToken(String token, boolean isRefresh) throws Exception {
+        JWSVerifier jwsVerifier = new MACVerifier(clientSecret.getBytes());
+
+        SignedJWT signedJWT = SignedJWT.parse(token);
+
+        Date expriryTime = (isRefresh) ? new Date(signedJWT
+                .getJWTClaimsSet()
+                .getIssueTime()
+                .toInstant()
+                // .plus(REFRESHABLE_DURATION, ChronoUnit.SECONDS)
+                .toEpochMilli())
+                : signedJWT.getJWTClaimsSet().getExpirationTime();
+
+        Boolean verified = signedJWT.verify(jwsVerifier);
+
+        if (!(verified && expriryTime.after(new Date()))) {
+            throw new Exception("Invalidated Token");
+        }
+
+        // if
+        // (invalidatedTokenRepository.existsById(signedJWT.getJWTClaimsSet().getJWTID()))
+        // {
+        // throw new Exception("Invalidated Token");
+        // }
+
+        // if (tokenBlacklistService.isTokenBlacklisted(token)) {
+        //     throw new Exception("Invalidated Token!!!");
+        // }
+
+        return signedJWT;
+    }
+    
 }
 
 

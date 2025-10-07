@@ -5,17 +5,19 @@ import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.hcmut.ecommerce.domain.cart.model.Cart;
-import com.hcmut.ecommerce.domain.order.model.Order;
-import com.hcmut.ecommerce.domain.payment.model.Escrow;
 import com.hcmut.ecommerce.domain.wallet.model.Wallet;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.DiscriminatorColumn;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
@@ -24,6 +26,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Table(name = "users")
@@ -31,7 +34,9 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "user_role")
 public class User {
 
     @Id
@@ -42,39 +47,25 @@ public class User {
     private String name;
     private String picture;
 
-    @Enumerated(EnumType.STRING)
-    private UserRole userRole;
-
-    @Enumerated(EnumType.STRING)
-    private AuthProvider provider;
-
     @OneToMany(mappedBy = "buyer", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private Set<Cart> cart = new HashSet<>();
-
-    @OneToMany(mappedBy = "buyer", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
-    private Set<Order> boughtOrders = new HashSet<>();
-
-    @OneToMany(mappedBy = "seller", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
-    private Set<Order> soldOrders = new HashSet<>();
-
-    @OneToMany(mappedBy = "buyer", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
-    private Set<Escrow> buyerEscrows = new HashSet<>();
-
-    @OneToMany(mappedBy = "seller", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
-    private Set<Escrow> sellerEscrows = new HashSet<>();
-
+    
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private Wallet wallet;
 
-    public enum AuthProvider {
-        LOCAL, GOOGLE
-    }
+    @Column(name = "user_role", insertable = false, updatable = false)
+    @Enumerated(EnumType.STRING)
+    private UserRole userRole;
+
+
+    // @Enumerated(EnumType.STRING)
+    // private AuthProvider provider; 
+
+    // public enum AuthProvider {
+    //     LOCAL, GOOGLE
+    // }
 
     public enum UserRole {
         ADMIN, SELLER, BUYER

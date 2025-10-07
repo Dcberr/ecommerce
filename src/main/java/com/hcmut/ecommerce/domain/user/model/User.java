@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.hcmut.ecommerce.domain.cart.model.Cart;
 import com.hcmut.ecommerce.domain.order.model.Order;
 import com.hcmut.ecommerce.domain.payment.model.Escrow;
 import com.hcmut.ecommerce.domain.wallet.model.Wallet;
@@ -26,7 +27,11 @@ import lombok.Setter;
 
 @Entity
 @Table(name = "users")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class User {
 
     @Id
@@ -36,12 +41,16 @@ public class User {
     private String email;
     private String name;
     private String picture;
-    
+
     @Enumerated(EnumType.STRING)
     private UserRole userRole;
 
     @Enumerated(EnumType.STRING)
-    private AuthProvider provider; 
+    private AuthProvider provider;
+
+    @OneToMany(mappedBy = "buyer", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private Set<Cart> cart = new HashSet<>();
 
     @OneToMany(mappedBy = "buyer", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference

@@ -25,11 +25,14 @@ import com.hcmut.ecommerce.domain.user.dto.request.GoogleLoginRequest;
 import com.hcmut.ecommerce.domain.user.dto.request.IntrospectRequest;
 import com.hcmut.ecommerce.domain.user.dto.response.AuthResponse;
 import com.hcmut.ecommerce.domain.user.dto.response.IntrospectResponse;
+import com.hcmut.ecommerce.domain.user.model.Buyer;
+import com.hcmut.ecommerce.domain.user.model.Seller;
 import com.hcmut.ecommerce.domain.user.model.User;
 import com.hcmut.ecommerce.domain.user.model.User.UserRole;
 import com.hcmut.ecommerce.domain.user.repository.UserRepository;
 import com.hcmut.ecommerce.domain.user.service.interfaces.AuthService;
 import com.hcmut.ecommerce.domain.user.service.interfaces.GoogleTokenVerifierService;
+import com.hcmut.ecommerce.domain.user.service.interfaces.UserService;
 import com.hcmut.ecommerce.domain.wallet.model.Wallet;
 import com.hcmut.ecommerce.security.JwtUtil;
 import com.nimbusds.jose.JOSEException;
@@ -54,6 +57,7 @@ public class AuthServiceImpl implements AuthService {
 
     private final GoogleTokenVerifierService googleVerifier;
     private final UserRepository userRepository;
+    private final UserService userService;
     private final JwtUtil jwtUtil;
 
     private final RestTemplate restTemplate = new RestTemplate();
@@ -76,45 +80,20 @@ public class AuthServiceImpl implements AuthService {
         String id_token = exchangeCodeForIdToken(request);
         GoogleIdToken.Payload payload = googleVerifier.verify(id_token);
         // log.info(payload.toString());
+        String jwt = null;
 
-        String email = payload.getEmail();
-        String name = (String) payload.get("name");
-        String picture = (String) payload.get("picture");
+        if (request.getUserRole().equals(UserRole.SELLER)) {
+            Seller seller = userService.sellerLogin(payload);
+            jwt = generateToken(seller);
+        } else if (request.getUserRole().equals(UserRole.ADMIN)) {
+            
+        } else {
+            Buyer buyer = userService.buyerLogin(payload);
+            jwt = generateToken(buyer);
+        }
 
-        log.info(email);
-        log.info(picture);
-        log.info(name);
+        return new AuthResponse(jwt);
 
-        // Nếu user chưa tồn tại thì lưu vào DB
-        User user = userRepository.findByEmail(email).orElseGet(() ->
-                {
-                    Wallet wallet = Wallet.builder()
-                            .amount(0f)  // số dư ban đầu
-                            .build();
-
-                    User newUser = User.builder()
-                            .email(email)
-                            .name(name)
-                            .userRole(UserRole.BUYER)
-                            .picture(picture)
-                            .provider(User.AuthProvider.GOOGLE)
-                            .wallet(wallet)
-                            .build();
-
-                    // thiết lập quan hệ 2 chiều
-                    wallet.setUser(newUser);
-
-                    return userRepository.save(newUser);
-                }
-        );
-
-        
-
-        // Sinh JWT cho hệ thống
-        // String jwt = jwtUtil.generateToken(user.getEmail());
-        String jwt = generateToken(user);
-
-        return new AuthResponse(jwt, email, name, picture);
     }
 
     @Override
@@ -126,7 +105,6 @@ public class AuthServiceImpl implements AuthService {
         String rawCode = URLDecoder.decode(request.getCode(), StandardCharsets.UTF_8);
 
         // log.info("Exchange token with params: code={}, clientId={}, redirectUri={}", rawCode, clientId, redirectUri);
-
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("code", rawCode);
@@ -191,9 +169,9 @@ public class AuthServiceImpl implements AuthService {
     private String buildScope(User user) {
         StringJoiner stringJoiner = new StringJoiner(" ");
 
-        User.UserRole role = user.getUserRole();
+        UserRole role = user.getUserRole();
         if (role != null) {
-            stringJoiner.add("ROLE_" + role.name());
+            stringJoiner.add("ROLE_" + role.toString());
         }
 
         return stringJoiner.toString();

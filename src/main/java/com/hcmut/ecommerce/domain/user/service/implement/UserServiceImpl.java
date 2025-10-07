@@ -4,6 +4,7 @@ import java.util.Set;
 
 import org.springframework.stereotype.Service;
 
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.hcmut.ecommerce.domain.cart.dto.request.CreateCartRequest;
 import com.hcmut.ecommerce.domain.cart.dto.request.DeleteCartRequest;
 import com.hcmut.ecommerce.domain.cart.dto.response.CartResponse;
@@ -11,9 +12,13 @@ import com.hcmut.ecommerce.domain.cart.model.Cart;
 import com.hcmut.ecommerce.domain.cart.repository.CartRepository;
 import com.hcmut.ecommerce.domain.productListing.model.ProductListing;
 import com.hcmut.ecommerce.domain.productListing.repository.ProductListingRepository;
+import com.hcmut.ecommerce.domain.user.model.Buyer;
+import com.hcmut.ecommerce.domain.user.model.Seller;
 import com.hcmut.ecommerce.domain.user.model.User;
+import com.hcmut.ecommerce.domain.user.model.User.UserRole;
 import com.hcmut.ecommerce.domain.user.repository.UserRepository;
 import com.hcmut.ecommerce.domain.user.service.interfaces.UserService;
+import com.hcmut.ecommerce.domain.wallet.model.Wallet;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -66,5 +71,67 @@ public class UserServiceImpl implements UserService {
   @Override
   public void clearCart(String userId) {
     cartRepository.deleteAllById_BuyerId(userId);
+  }
+
+  public Buyer buyerLogin(GoogleIdToken.Payload payload){
+    User user = userRepository.findByEmail(payload.getEmail()).orElseGet(() ->
+                {
+                    Wallet wallet = Wallet.builder()
+                            .amount(0f)
+                            .build();
+
+                    User newBuyer = (Buyer) Buyer.builder()
+                            .email(payload.getEmail())
+                            .name((String) payload.get("name"))
+                            .picture((String) payload.get("picture"))
+                            .userRole(UserRole.BUYER)
+                            .wallet(wallet)
+                            .build();
+
+                    wallet.setUser(newBuyer);
+
+                    return userRepository.save(newBuyer);
+                }
+        );
+
+        if (!(user instanceof Buyer)) {
+            throw new IllegalStateException("This is not Buyer's account!");
+        }
+
+        return (Buyer) user;
+
+  }
+
+  public Seller sellerLogin(GoogleIdToken.Payload payload){
+    log.info("Whatt");
+    User user = userRepository.findByEmail(payload.getEmail()).orElseGet(() ->
+                {
+                    Wallet wallet = Wallet.builder()
+                            .amount(0f)
+                            .build();
+
+                    Seller newSeller = Seller.builder()
+                            .email(payload.getEmail())
+                            .name((String) payload.get("name"))
+                            .picture((String) payload.get("picture"))
+                            .userRole((UserRole.SELLER))
+                            .wallet(wallet)
+                            .build();
+
+                    wallet.setUser(newSeller);
+
+                    log.info("Running login hereee");
+
+                    return userRepository.save(newSeller);
+                }
+        );
+
+        if (!(user instanceof Seller)) {
+            throw new IllegalStateException("This is not Seller's account!");
+        }
+        
+
+        return (Seller) user;
+
   }
 }

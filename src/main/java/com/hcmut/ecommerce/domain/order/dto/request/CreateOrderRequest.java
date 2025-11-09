@@ -10,8 +10,9 @@ import lombok.Setter;
 @Setter
 @Builder
 public class CreateOrderRequest {
-    private Float totalAmount;
+    private Integer totalProductPrice;
     private String buyerId;
     private String sellerId;
+    private String note;
     // private Long amount;
 }

@@ -36,6 +36,28 @@ public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
+    
+    private String pick_name;
+        private String pick_address;
+        private String pick_province;
+        private String pick_district;
+        private String pick_ward;
+        private String pick_tel;
+        private String tel;
+        private String name;
+        private String address;
+        private String province;
+        private String district;
+        private String ward;
+        private String hamlet;
+        private String transport;  
+        private Integer pick_money;
+        private Integer value;      
+        private String note;
+        private String is_freeship; 
+    
+    private Integer shippingFee;
+    private Integer totalProductPrice;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "buyer_id", nullable = false)
@@ -50,7 +72,7 @@ public class Order {
     @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus;
 
-    private Float totalAmount;
+    // private Float totalAmount;
 
     @OneToOne(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference

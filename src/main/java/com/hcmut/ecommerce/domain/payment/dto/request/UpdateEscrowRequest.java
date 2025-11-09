@@ -10,6 +10,6 @@ import lombok.Data;
 @Builder
 @AllArgsConstructor
 public class UpdateEscrowRequest {
-    private Float amount;
+    private Integer amount;
     private LocalDateTime releaseAt;
 }

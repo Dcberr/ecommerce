@@ -47,6 +47,12 @@ public class User {
     private String name;
     private String picture;
 
+    private String tel;
+    private String address;
+    private String province;
+    private String district;
+    private String ward;
+
     @OneToMany(mappedBy = "buyer", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private Set<Cart> cart = new HashSet<>();

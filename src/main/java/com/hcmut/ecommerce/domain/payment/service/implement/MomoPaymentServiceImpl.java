@@ -3,7 +3,6 @@ package com.hcmut.ecommerce.domain.payment.service.implement;
 import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.crypto.Mac;
@@ -110,12 +109,12 @@ public class MomoPaymentServiceImpl implements MomoPaymentService {
         Order order = orderRepository.findById(request.getOrderId())
                         .orElseThrow(() -> new RuntimeException("Order not found with id " + request.getOrderId()));
 
-        log.info(String.valueOf(order.getTotalAmount()));
-        log.info(order.getTotalAmount().toString());
+        // log.info(String.valueOf(order.getTotalAmount()));
+        // log.info(order.g().toString());
 
         Map<String, String> requestBody = new LinkedHashMap<>();
         requestBody.put("accessKey", ACCESS_KEY);
-        requestBody.put("amount", String.valueOf(order.getTotalAmount().intValue()));
+        requestBody.put("amount", String.valueOf(order.getPick_money().intValue()));
         requestBody.put("extraData", "eyJza3VzIjoiIn0=");
         requestBody.put("ipnUrl", IPN_URL);
         requestBody.put("orderId", request.getOrderId());

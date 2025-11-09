@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.hcmut.ecommerce.common.response.ApiResponse;
 import com.hcmut.ecommerce.domain.cart.dto.request.CreateCartRequest;
 import com.hcmut.ecommerce.domain.cart.dto.response.CartResponse;
+import com.hcmut.ecommerce.domain.user.dto.request.FirstLoginInforRequest;
+import com.hcmut.ecommerce.domain.user.model.User;
 import com.hcmut.ecommerce.domain.user.service.interfaces.UserService;
 
 import lombok.RequiredArgsConstructor;
@@ -54,5 +56,16 @@ public class UserController {
     public ApiResponse<Void> clearCart(@RequestBody String userId) throws Exception {
         userService.clearCart(userId);
         return ApiResponse.success(null, "Clear Cart Successfully!");
+    }
+
+    @GetMapping("/my-info")
+    public ApiResponse<User> getMyInfor(){
+        return ApiResponse.success(userService.getMyInfor());
+        
+    }
+
+    @PostMapping("/first-login")
+    public ApiResponse<User> updateFirstLoginInfor(@RequestBody FirstLoginInforRequest request){
+        return ApiResponse.success(userService.updateFirstLoginInfor(request));
     }
 }

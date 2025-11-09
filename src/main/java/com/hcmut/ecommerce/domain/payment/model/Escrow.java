@@ -31,7 +31,7 @@ public class Escrow {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    private Float amount;
+    private Integer amount;
 
     @Enumerated(EnumType.STRING)
     private EscrowStatus escrowStatus;

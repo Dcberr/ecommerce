@@ -2,6 +2,8 @@ package com.hcmut.ecommerce.domain.user.service.implement;
 
 import java.util.Set;
 
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
@@ -12,6 +14,7 @@ import com.hcmut.ecommerce.domain.cart.model.Cart;
 import com.hcmut.ecommerce.domain.cart.repository.CartRepository;
 import com.hcmut.ecommerce.domain.productListing.model.ProductListing;
 import com.hcmut.ecommerce.domain.productListing.repository.ProductListingRepository;
+import com.hcmut.ecommerce.domain.user.dto.request.FirstLoginInforRequest;
 import com.hcmut.ecommerce.domain.user.model.Buyer;
 import com.hcmut.ecommerce.domain.user.model.Seller;
 import com.hcmut.ecommerce.domain.user.model.User;
@@ -133,5 +136,24 @@ public class UserServiceImpl implements UserService {
 
         return (Seller) user;
 
+  }
+
+  public User getMyInfor() {
+        SecurityContext context = SecurityContextHolder.getContext();
+
+        String email = context.getAuthentication().getName();
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+
+        return user;
+    }
+
+  public User updateFirstLoginInfor(FirstLoginInforRequest request){
+    User user = getMyInfor();
+    user.setProvince(request.getProvince());
+    user.setDistrict(request.getDistrict());
+    user.setAddress(request.getAddress());
+    user.setWard(request.getWard());
+    user.setTel(request.getTel());
+    return userRepository.save(user);
   }
 }

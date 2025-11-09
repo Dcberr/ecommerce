@@ -8,7 +8,7 @@ import lombok.Data;
 @Builder
 @AllArgsConstructor
 public class CreateEscrowRequest {
-    private Float amount;
+    private Integer amount;
     private String buyerId;
     private String sellerId;
     private String orderId;

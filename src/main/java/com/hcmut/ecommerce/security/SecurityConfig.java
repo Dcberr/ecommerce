@@ -24,7 +24,7 @@ public class SecurityConfig {
     private CustomJwtDecoder customJwtDecoder;
 
     private final String[] PUBLIC_ENDPOINTS = {
-            "/api/auth/**", "/auth/google", "/v3/api-docs/**",
+            "/api/auth/**", "/auth/google", "/v3/api-docs/**", "/api/payment/callback",
                         "/swagger-ui.html",
                         "/swagger-ui/**",
                         "/swagger-resources/**",

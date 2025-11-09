@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.hcmut.ecommerce.common.response.ApiResponse;
 import com.hcmut.ecommerce.domain.order.dto.request.CreateOrderRequest;
 import com.hcmut.ecommerce.domain.order.model.Order;
@@ -36,7 +38,7 @@ public class OrderController {
     }
 
     @PostMapping
-    public ApiResponse<Order> createOrder(@RequestBody CreateOrderRequest request){
+    public ApiResponse<Order> createOrder(@RequestBody CreateOrderRequest request) throws JsonMappingException, JsonProcessingException{
         return ApiResponse.success(orderService.createOrder(request));
     }
 
@@ -44,5 +46,10 @@ public class OrderController {
     public ApiResponse<Void> deleteOrder(@PathVariable String id){
         orderService.deleteOrder(id);
         return ApiResponse.success(null);
+    }
+    
+    @GetMapping("/seller")
+    public ApiResponse<List<Order>> getOrderBySellerId(){
+        return ApiResponse.success(orderService.getOrderBySellerId());
     }
 }

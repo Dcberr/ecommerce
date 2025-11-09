@@ -1,8 +1,13 @@
 package com.hcmut.ecommerce.domain.order.dto.request;
 
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Data
+@SuperBuilder
+@NoArgsConstructor
 public class FeeRequest {
     private String pickProvince;
     private String pickDistrict;

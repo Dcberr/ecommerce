@@ -1,7 +1,5 @@
 package com.hcmut.ecommerce.domain.order.dto.request;
 
-import com.hcmut.ecommerce.domain.user.model.User;
-
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;

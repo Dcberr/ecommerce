@@ -18,7 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
@@ -34,7 +33,6 @@ import com.hcmut.ecommerce.domain.user.repository.UserRepository;
 import com.hcmut.ecommerce.domain.user.service.interfaces.AuthService;
 import com.hcmut.ecommerce.domain.user.service.interfaces.GoogleTokenVerifierService;
 import com.hcmut.ecommerce.domain.user.service.interfaces.UserService;
-import com.hcmut.ecommerce.domain.wallet.model.Wallet;
 import com.hcmut.ecommerce.security.JwtUtil;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
@@ -76,6 +74,12 @@ public class AuthServiceImpl implements AuthService {
 
     @Value("${spring.security.oauth2.client.registration.google.expiration-time}")
     private String expirationTime;
+
+    @Value("${spring.application.home-url}")
+    private String homeUrl;
+
+    @Value("${spring.application.error-valid-user-url}")
+    private String validUserUrl;
 
     @Override
     public AuthResponse loginWithGoogle(GoogleLoginRequest request) throws Exception {
@@ -146,11 +150,11 @@ public class AuthServiceImpl implements AuthService {
             response.addCookie(cookie);
 
             // Redirect to homepage
-            response.sendRedirect("http://localhost:3000/");
+            response.sendRedirect(homeUrl);
         } catch (Exception e) {
             log.error("Error during Google callback: {}", e.getMessage());
             // Redirect to an error page or display an error message
-            response.sendRedirect("https://facebook.com/");
+            response.sendRedirect(validUserUrl);
         }
         
     }

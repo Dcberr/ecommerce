@@ -1,5 +1,7 @@
 package com.hcmut.ecommerce.security;
 
+import java.util.Arrays;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,8 +18,13 @@ import org.springframework.security.web.SecurityFilterChain;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Contact;
+import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.info.License;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import io.swagger.v3.oas.models.servers.Server;
+import io.swagger.v3.oas.models.tags.Tag;
 
 
 @Configuration
@@ -73,6 +80,17 @@ public class SecurityConfig {
     @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
+            .info(new Info()
+                .title("eCommerce API")
+                .version("${ecommerce.version:0.37.3}")
+                .description("REST API for the eCommerce service")
+                .contact(new Contact().name("eCommerce Team").email("devops@example.com"))
+                .license(new License().name("MIT").url("https://opensource.org/licenses/MIT"))
+            )
+            .servers(Arrays.asList(
+                new Server().url("http://localhost:8003").description("Local dev")
+                // new Server().url("https://api.yourdomain.com").description("Production")
+            ))
             .components(new Components()
                 .addSecuritySchemes("BearerAuth",
                     new SecurityScheme()
@@ -81,8 +99,19 @@ public class SecurityConfig {
                         .bearerFormat("JWT")
                 )
             )
-            .addSecurityItem(new SecurityRequirement().addList("BearerAuth"));
-}
+            .addSecurityItem(new SecurityRequirement().addList("BearerAuth"))
+            .tags(Arrays.asList(
+                new Tag().name("Auth").description("Authentication endpoints (login, callback)"),
+                new Tag().name("Products").description("Product CRUD and search"),
+                new Tag().name("ProductListings").description("Product listing operations"),
+                new Tag().name("Categories").description("Category management"),
+                new Tag().name("Orders").description("Order lifecycle"),
+                new Tag().name("Payments").description("Payment / MOMO endpoints"),
+                new Tag().name("Escrow").description("Escrow management"),
+                new Tag().name("Delivery").description("Delivery & shipping endpoints"),
+                new Tag().name("Users").description("User profile and cart endpoints")
+            ));
+    }
 
 
 }

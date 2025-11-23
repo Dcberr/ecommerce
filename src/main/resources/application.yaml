@@ -25,6 +25,8 @@ momo:
 spring:
   application:
     name: ${SPRING_APP_NAME}
+    home-url: ${HOME_URL}
+    error-valid-user-url: ${ERROR_VALID_USER_URL}
 
   security:
     oauth2:

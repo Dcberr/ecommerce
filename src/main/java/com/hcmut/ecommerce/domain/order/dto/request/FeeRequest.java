@@ -8,6 +8,7 @@ import lombok.experimental.SuperBuilder;
 @Data
 @SuperBuilder
 @NoArgsConstructor
+@Builder
 public class FeeRequest {
     private String pickProvince;
     private String pickDistrict;

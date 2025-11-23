@@ -2,7 +2,6 @@ package com.hcmut.ecommerce.domain.productListing.controller;
 
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -14,6 +13,10 @@ import com.hcmut.ecommerce.domain.productListing.dto.request.CreateProductListin
 import com.hcmut.ecommerce.domain.productListing.dto.response.ProductListingResponse;
 import com.hcmut.ecommerce.domain.productListing.service.interfaces.ProductListingService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -21,23 +24,27 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/api/productListings")
 @RequiredArgsConstructor
 @Slf4j
+@SecurityRequirement(name = "BearerAuth")
+@Tag(name = "ProductListings", description = "Product listing operations")
 public class ProductListingController {
 
   private final ProductListingService productListingService;
 
-  // @GetMapping("/{id}")
-  // public ApiResponse<ProductListingResponse>
-  // getProductListingById(@PathVariable Long id) throws Exception {
-  // return ApiResponse.success(productListingService.getProductListingById(id),
-  // "Get ProductListing Successfully!");
-  // }
-
+  @Operation(
+    summary = "List product listings (paged)",
+    description = "Retrieve paged list of product listings. Supports page, pageSize, sorting and descending flag.",
+    tags = {"ProductListings"}
+  )
+  @io.swagger.v3.oas.annotations.responses.ApiResponses({
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Paged product listings returned"),
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Unauthorized")
+  })
   @GetMapping("")
   public ApiResponse<Page<ProductListingResponse>> getAllProductListings(
-      @RequestParam(required = false) Integer pageSize,
-      @RequestParam(required = false) Integer page,
-      @RequestParam(required = false) String sortBy,
-      @RequestParam(required = false) String desc) throws Exception {
+      @Parameter(description = "Number of items per page", example = "10") @RequestParam(required = false) Integer pageSize,
+      @Parameter(description = "Page number (0-based)", example = "0") @RequestParam(required = false) Integer page,
+      @Parameter(description = "Field to sort by", example = "id") @RequestParam(required = false) String sortBy,
+      @Parameter(description = "Set true to sort descending", example = "false") @RequestParam(required = false) String desc) throws Exception {
     if (pageSize == null)
       pageSize = 10;
     if (page == null)
@@ -51,6 +58,16 @@ public class ProductListingController {
         "Get All ProductListings Successfully!");
   }
 
+  @Operation(
+    summary = "Create product listing",
+    description = "Create a new product listing. Requires appropriate role/permission.",
+    tags = {"ProductListings"}
+  )
+  @io.swagger.v3.oas.annotations.responses.ApiResponses({
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Product listing created"),
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid request"),
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Unauthorized")
+  })
   @PostMapping("")
   public ApiResponse<ProductListingResponse> createProductListing(@RequestBody CreateProductListingRequest request)
       throws Exception {

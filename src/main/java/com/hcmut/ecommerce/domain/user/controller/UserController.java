@@ -18,6 +18,7 @@ import com.hcmut.ecommerce.domain.user.dto.request.FirstLoginInforRequest;
 import com.hcmut.ecommerce.domain.user.model.User;
 import com.hcmut.ecommerce.domain.user.service.interfaces.UserService;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -25,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/api/user")
 @RequiredArgsConstructor
 @Slf4j
+@SecurityRequirement(name = "BearerAuth")
 public class UserController {
 
     private final UserService userService;

@@ -17,6 +17,7 @@ import com.hcmut.ecommerce.domain.order.dto.request.CreateOrderRequest;
 import com.hcmut.ecommerce.domain.order.model.Order;
 import com.hcmut.ecommerce.domain.order.service.interfaces.OrderService;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -24,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequestMapping("/api/order")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "BearerAuth")
 public class OrderController {
     private final OrderService orderService;
 

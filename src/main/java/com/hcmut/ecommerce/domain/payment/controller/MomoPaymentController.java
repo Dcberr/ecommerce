@@ -12,6 +12,7 @@ import com.hcmut.ecommerce.domain.payment.dto.response.MomoCallbackResponse;
 import com.hcmut.ecommerce.domain.payment.dto.response.MomoPaymentResponse;
 import com.hcmut.ecommerce.domain.payment.service.interfaces.MomoPaymentService;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -19,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequestMapping("/api/payment")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "BearerAuth")
 public class MomoPaymentController {
     private final MomoPaymentService momoPaymentService;
 

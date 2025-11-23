@@ -79,7 +79,7 @@ public class Order {
     private Escrow escrow;
 
     public enum OrderStatus {
-        UNPAID, DELIVERING, DELIVERED 
+        UNPAID, DELIVERING, DELIVERED, CANCELLED
     }
 
 }

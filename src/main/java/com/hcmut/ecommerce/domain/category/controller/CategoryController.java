@@ -12,6 +12,7 @@ import com.hcmut.ecommerce.domain.category.dto.request.CreateCategoryRequest;
 import com.hcmut.ecommerce.domain.category.dto.response.CategoryResponse;
 import com.hcmut.ecommerce.domain.category.service.interfaces.CategoryService;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -21,6 +22,7 @@ import java.util.List;
 @RequestMapping("/api/categories")
 @RequiredArgsConstructor
 @Slf4j
+@SecurityRequirement(name = "BearerAuth")
 public class CategoryController {
 
   private final CategoryService categoryService;

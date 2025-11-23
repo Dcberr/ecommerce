@@ -18,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
@@ -47,6 +48,8 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.ParseException;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -110,7 +113,7 @@ public class AuthServiceImpl implements AuthService {
         params.add("code", rawCode);
         params.add("client_id", clientId);
         params.add("client_secret", clientSecret);
-        params.add("redirect_uri", redirectUri);
+        params.add("redirect_uri", redirectUri + "?role=" + request.getUserRole().toString());
         params.add("grant_type", "authorization_code");
 
         HttpEntity<MultiValueMap<String, String>> exchangeRequest = new HttpEntity<>(params, headers);
@@ -124,6 +127,32 @@ public class AuthServiceImpl implements AuthService {
         }
 
         throw new RuntimeException("Failed to exchange code for id_token");
+    }
+
+    public void googleCallback(String code, String role, HttpServletResponse response) throws Exception {
+        log.info("Google code: {}", code);
+        log.info("Role: {}", role);
+        GoogleLoginRequest request = new GoogleLoginRequest();
+        request.setCode(code);
+        request.setUserRole(UserRole.valueOf(role));
+        // return ApiResponse.success(authService.loginWithGoogle(request), "Google Callback Successfully!");
+        try {
+            AuthResponse authResponse = loginWithGoogle(request);
+            String accessToken = authResponse.getAccessToken();
+            Cookie cookie = new Cookie("accessToken", accessToken);
+            cookie.setHttpOnly(false); // true if you want backend-only
+            cookie.setPath("/");
+            cookie.setMaxAge(60 * 60 * 24); // 1 day
+            response.addCookie(cookie);
+
+            // Redirect to homepage
+            response.sendRedirect("http://localhost:3000/");
+        } catch (Exception e) {
+            log.error("Error during Google callback: {}", e.getMessage());
+            // Redirect to an error page or display an error message
+            response.sendRedirect("https://facebook.com/");
+        }
+        
     }
 
 

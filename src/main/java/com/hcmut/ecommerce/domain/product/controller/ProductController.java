@@ -14,6 +14,7 @@ import com.hcmut.ecommerce.domain.product.dto.request.CreateProductRequest;
 import com.hcmut.ecommerce.domain.product.dto.response.ProductResponse;
 import com.hcmut.ecommerce.domain.product.service.interfaces.ProductService;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -21,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/api/products")
 @RequiredArgsConstructor
 @Slf4j
+@SecurityRequirement(name = "BearerAuth")
 public class ProductController {
 
   private final ProductService productService;

@@ -29,20 +29,40 @@ services:
       postgres:
         condition: service_healthy
     ports:
-      - "${SERVER_PORT}:8004"
+      - "8004:8004"
     env_file:
       - .env
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_NAME}
+      # Database Configuration
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:${DATABASE_PORT}/${DATABASE_NAME}
       DATABASE_USERNAME: ${DATABASE_USERNAME}
       DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      DATABASE_PORT: ${DATABASE_PORT}
+      DATABASE_HOST: postgres
+      #JPA Configuration  
       HIBERNATE_DDL_AUTO: none
       HIBERNATE_DIALECT: ${HIBERNATE_DIALECT}
+      # Application Configuration
       SPRING_APP_NAME: ${SPRING_APP_NAME}
+      SERVER_PORT: 8004
+      HOME_URL: ${HOME_URL}
+      ERROR_VALID_USER_URL: ${ERROR_VALID_USER_URL}
+      # Google Cloud Configuration
       CLIENT_ID: ${CLIENT_ID}
       CLIENT_SECRET: ${CLIENT_SECRET}
       REDIRECT_URI: ${REDIRECT_URI}
       GOOGLE_EXPIRATION_TIME: ${GOOGLE_EXPIRATION_TIME}
+      # GHTK Configuration
+      GHTK_BASE_URL: ${GHTK_BASE_URL}
+      GHTK_TOKEN: ${GHTK_TOKEN}
+      GHTK_PARTNER_CODE: ${GHTK_PARTNER_CODE}
+      # Momo Configuration
+      ACCESS_KEY: ${ACCESS_KEY}
+      SECRET_KEY: ${SECRET_KEY}
+      PARTNER_CODE: ${PARTNER_CODE}
+      END_POINT: ${END_POINT}
+      IPN_URL: ${IPN_URL}
+      MOMO_REDIRECT_URL: ${MOMO_REDIRECT_URL}
 
 volumes:
   postgres_data:

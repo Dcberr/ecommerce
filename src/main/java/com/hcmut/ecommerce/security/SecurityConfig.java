@@ -3,6 +3,7 @@ package com.hcmut.ecommerce.security;
 import java.util.Arrays;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -34,14 +35,18 @@ public class SecurityConfig {
 
     @Autowired
     private CustomJwtDecoder customJwtDecoder;
+    
+    @Value("${server.port}")
+    private String serverPort;
 
     private final String[] PUBLIC_ENDPOINTS = {
-            "/api/auth/**", "/auth/google", "/v3/api-docs/**", "/api/payment/callback",
-                        "/swagger-ui.html",
-                        "/swagger-ui/**",
-                        "/swagger-resources/**",
-                        "/webjars/**"
-    };
+        "/api/auth/**",
+        "/auth/google",
+        "/api/payment/callback",
+        "/swagger-ui/**",
+        "/v3/api-docs/**",
+        "/webjars/**"
+};
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
@@ -88,7 +93,7 @@ public class SecurityConfig {
                 .license(new License().name("MIT").url("https://opensource.org/licenses/MIT"))
             )
             .servers(Arrays.asList(
-                new Server().url("http://localhost:8003").description("Local dev")
+                new Server().url("http://localhost:" + serverPort).description("Local dev")
                 // new Server().url("https://api.yourdomain.com").description("Production")
             ))
             .components(new Components()

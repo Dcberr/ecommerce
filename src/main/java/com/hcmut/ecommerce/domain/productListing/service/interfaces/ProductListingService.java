@@ -6,10 +6,11 @@ import com.hcmut.ecommerce.domain.productListing.dto.response.ProductListingResp
 import org.springframework.data.domain.Page;
 
 public interface ProductListingService {
-  // public ProductListingResponse getProductListingById(Long id) throws
-  // Exception;
+  public ProductListingResponse getProductListingById(String sellerId, Long productId) throws Exception;
 
-  public Page<ProductListingResponse> getAllProductListings(Integer pageSize, Integer page, String sortBy, Boolean desc)
+  public Page<ProductListingResponse> getAllProductListings(Integer pageSize, Integer page, String sortBy, Boolean desc,
+      String keyword,
+      Integer minPrice, Integer maxPrice, String categoryName, String province)
       throws Exception;
 
   public ProductListingResponse createProductListing(CreateProductListingRequest request) throws Exception;

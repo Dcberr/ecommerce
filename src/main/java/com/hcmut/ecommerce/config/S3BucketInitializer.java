@@ -5,8 +5,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
-import software.amazon.awssdk.services.s3.model.HeadBucketRequest;
-import software.amazon.awssdk.services.s3.S3Client;
 
 @Component
 public class S3BucketInitializer implements CommandLineRunner {
@@ -47,19 +45,9 @@ public class S3BucketInitializer implements CommandLineRunner {
 
   private boolean bucketExists(String bucketName) {
     try {
-      // Use S3Operations to check if bucket exists
-      S3Client s3Client = getS3Client();
-      if (s3Client == null) {
-        logger.warn("Could not access S3Client from S3Template");
-        return false;
-      }
-
-      HeadBucketRequest headBucketRequest = HeadBucketRequest.builder()
-          .bucket(bucketName)
-          .build();
-      s3Client.headBucket(headBucketRequest);
+      boolean result = s3Template.bucketExists(bucketName);
       logger.debug("Bucket '{}' exists in S3.", bucketName);
-      return true;
+      return result;
     } catch (Exception e) {
       logger.debug("Bucket '{}' does not exist: {}", bucketName, e.getMessage());
       return false;
@@ -74,18 +62,6 @@ public class S3BucketInitializer implements CommandLineRunner {
     } catch (Exception e) {
       logger.error("Error creating bucket '{}': {}", bucketName, e.getMessage(), e);
       throw new RuntimeException("Failed to create S3 bucket: " + bucketName, e);
-    }
-  }
-
-  private S3Client getS3Client() {
-    try {
-      // S3Template has a getS3Client() method in recent versions
-      return (S3Client) s3Template.getClass()
-          .getMethod("getS3Client")
-          .invoke(s3Template);
-    } catch (Exception e) {
-      logger.warn("Could not get S3Client via reflection: {}", e.getMessage());
-      return null;
     }
   }
 }

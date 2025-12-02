@@ -22,11 +22,6 @@ momo:
   ipn-url: ${IPN_URL}
   momo-redirect-url: ${MOMO_REDIRECT_URL}
 
-aws:
-  s3:
-    bucket-name: ${S3_BUCKET_NAME}
-    region: ${S3_REGION}
-
 spring:
   application:
     name: ${SPRING_APP_NAME}
@@ -63,7 +58,7 @@ spring:
         enabled: true
         endpoint: ${S3_HOST}
         region: ${S3_REGION}
-        bucket-name: images-ecommerce
+        bucket-name: ${S3_BUCKET_NAME}
         path-style-access-enabled: true
       credentials:
         access-key: ${S3_ACCESS_KEY}

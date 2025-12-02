@@ -20,6 +20,9 @@ public class CreateProductRequest {
   @NonNull
   private List<Integer> categoryIds;
 
+  private String imageBlobString;
+  private String imageType;
+
   public Product toProduct() {
     return new Product(null, name, baseUnit, imageUrl, null);
   }

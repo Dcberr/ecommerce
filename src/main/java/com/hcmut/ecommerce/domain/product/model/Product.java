@@ -42,6 +42,7 @@ public class Product {
   private ProductUnitType baseUnit;
 
   private String imageUrl;
+  private String imageType;
 
   // @NonNull
   @ManyToMany(fetch = FetchType.LAZY)

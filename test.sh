@@ -273,29 +273,39 @@ get_users() {
 create_categories() {
     print_header "Creating Categories"
     
+    # Read image base64 from file
+    local SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    local IMAGE_B64=""
+    if [ -f "$SCRIPT_DIR/mango.png.b64.txt" ]; then
+        IMAGE_B64=$(cat "$SCRIPT_DIR/mango.png.b64.txt" | tr -d '\n\r')
+        print_info "Loaded image from mango.png.b64.txt (${#IMAGE_B64} chars)"
+    else
+        print_info "mango.png.b64.txt not found, creating categories without image blob"
+    fi
+    
     # Category 1: Vegetables
     print_info "Creating category: Vegetables"
-    response=$(do_curl POST "/api/categories" '{"name":"Vegetables","description":"Fresh organic vegetables from local farms"}')
+    response=$(do_curl POST "/api/categories" "{\"name\":\"Vegetables\",\"description\":\"Fresh organic vegetables from local farms\",\"imageBlobString\":\"$IMAGE_B64\",\"imageType\":\"image/png\"}")
     echo "$response" | jq . 2>/dev/null || echo "$response"
     
     # Category 2: Fruits
     print_info "Creating category: Fruits"
-    response=$(do_curl POST "/api/categories" '{"name":"Fruits","description":"Seasonal fruits from trusted suppliers"}')
+    response=$(do_curl POST "/api/categories" "{\"name\":\"Fruits\",\"description\":\"Seasonal fruits from trusted suppliers\",\"imageBlobString\":\"$IMAGE_B64\",\"imageType\":\"image/png\"}")
     echo "$response" | jq . 2>/dev/null || echo "$response"
     
     # Category 3: Dairy
     print_info "Creating category: Dairy"
-    response=$(do_curl POST "/api/categories" '{"name":"Dairy","description":"Milk, cheese, and other dairy products"}')
+    response=$(do_curl POST "/api/categories" "{\"name\":\"Dairy\",\"description\":\"Milk, cheese, and other dairy products\",\"imageBlobString\":\"$IMAGE_B64\",\"imageType\":\"image/png\"}")
     echo "$response" | jq . 2>/dev/null || echo "$response"
     
     # Category 4: Meat
     print_info "Creating category: Meat"
-    response=$(do_curl POST "/api/categories" '{"name":"Meat","description":"Fresh meat and poultry products"}')
+    response=$(do_curl POST "/api/categories" "{\"name\":\"Meat\",\"description\":\"Fresh meat and poultry products\",\"imageBlobString\":\"$IMAGE_B64\",\"imageType\":\"image/png\"}")
     echo "$response" | jq . 2>/dev/null || echo "$response"
     
     # Category 5: Seafood
     print_info "Creating category: Seafood"
-    response=$(do_curl POST "/api/categories" '{"name":"Seafood","description":"Fresh seafood from coastal regions"}')
+    response=$(do_curl POST "/api/categories" "{\"name\":\"Seafood\",\"description\":\"Fresh seafood from coastal regions\",\"imageBlobString\":\"$IMAGE_B64\",\"imageType\":\"image/png\"}")
     echo "$response" | jq . 2>/dev/null || echo "$response"
     
     print_success "Categories created"

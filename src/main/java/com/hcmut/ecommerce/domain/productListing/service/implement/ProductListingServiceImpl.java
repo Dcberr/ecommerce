@@ -108,6 +108,9 @@ public class ProductListingServiceImpl implements ProductListingService {
     productListing.setProduct(product);
     // Format: product-listing-images/{sellerId}/{productId}/image_1.png
     // image/png, image/jpg, etc.
+    if (request.getImageBlobString() == null || request.getImageBlobString().isEmpty()) {
+      return new ProductListingResponse(productListingRepository.save(productListing));
+    }
     String imageExtension = "." + productListing.getImageType().split("/")[1];
     String imageUrl = productListingImageFolder + "/" + seller.getId() + "/" + product.getId() + "/" + "image_1"
         + imageExtension;

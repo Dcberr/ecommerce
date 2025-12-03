@@ -1,6 +1,9 @@
 package com.hcmut.ecommerce.domain.productListing.model;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
+
+import org.hibernate.annotations.CreationTimestamp;
 
 import com.hcmut.ecommerce.domain.product.model.Product;
 import com.hcmut.ecommerce.domain.user.model.User;
@@ -39,12 +42,21 @@ public class ProductListing {
   private Product product;
 
   @NonNull
+  private String name;
+
+  private String description;
+
+  @NonNull
   private Long stock;
 
   @NonNull
   private Float price;
 
   private String imageUrl;
+  private String imageType;
+
+  @CreationTimestamp
+  private LocalDateTime createdAt;
 
   @Embeddable
   @Data

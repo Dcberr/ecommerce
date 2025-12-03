@@ -31,4 +31,7 @@ public class Category {
   private String name;
 
   private String description;
+
+  private String imageUrl;
+  private String imageType;
 }

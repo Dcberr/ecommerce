@@ -18,6 +18,7 @@ public class ProductResponse {
   private String name;
   private ProductUnitType baseUnit;
   private String imageUrl;
+  private String imageType;
   private List<String> categoryNames;
 
   public ProductResponse(Product product) {
@@ -25,6 +26,7 @@ public class ProductResponse {
     this.name = product.getName();
     this.baseUnit = product.getBaseUnit();
     this.imageUrl = product.getImageUrl();
+    this.imageType = product.getImageType();
     this.categoryNames = product.getCategories().stream().map(category -> category.getName())
         .collect(Collectors.toList());
   }

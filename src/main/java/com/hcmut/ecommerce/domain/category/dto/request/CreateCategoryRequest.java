@@ -10,8 +10,10 @@ import lombok.Setter;
 public class CreateCategoryRequest {
   private String name;
   private String description;
+  private String imageBlobString;
+  private String imageType;
 
   public Category toCategory() {
-    return new Category(null, name, description);
+    return new Category(null, name, description, null, imageType);
   }
 }

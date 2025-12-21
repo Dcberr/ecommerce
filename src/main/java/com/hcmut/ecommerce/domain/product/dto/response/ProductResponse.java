@@ -19,6 +19,10 @@ public class ProductResponse {
   private ProductUnitType baseUnit;
   private String imageUrl;
   private String imageType;
+  private Long price;
+  private int discount;
+  private Float rating;
+  private String location;
   private List<String> categoryNames;
 
   public ProductResponse(Product product) {
@@ -26,6 +30,10 @@ public class ProductResponse {
     this.name = product.getName();
     this.baseUnit = product.getBaseUnit();
     this.imageUrl = product.getImageUrl();
+    this.price = product.getPrice();
+    this.discount = product.getDiscount();
+    this.rating = product.getRating();
+    this.location = product.getLocation();
     this.imageType = product.getImageType();
     this.categoryNames = product.getCategories().stream().map(category -> category.getName())
         .collect(Collectors.toList());

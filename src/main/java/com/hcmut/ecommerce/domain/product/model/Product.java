@@ -44,6 +44,11 @@ public class Product {
   private String imageUrl;
   private String imageType;
 
+  private Long price;
+  private int discount;
+  private Float rating;
+  private String location;
+
   // @NonNull
   @ManyToMany(fetch = FetchType.LAZY)
   @JoinTable(name = "product_categories", joinColumns = @JoinColumn(name = "product_id"), inverseJoinColumns = @JoinColumn(name = "category_id"))

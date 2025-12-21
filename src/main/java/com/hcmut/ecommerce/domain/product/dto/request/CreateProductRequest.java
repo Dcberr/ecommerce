@@ -16,6 +16,10 @@ public class CreateProductRequest {
   private String name;
   @NonNull
   private ProductUnitType baseUnit;
+  private Long price;
+  private int discount;
+  private Float rating;
+  private String location;
   @NonNull
   private List<Integer> categoryIds;
 
@@ -23,6 +27,6 @@ public class CreateProductRequest {
   private String imageType;
 
   public Product toProduct() {
-    return new Product(null, name, baseUnit, null, imageType, null);
+    return new Product(null, name, baseUnit, null, imageType, price, discount, rating, location, null);
   }
 }

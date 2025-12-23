@@ -42,6 +42,8 @@ public class ProductListingServiceImpl implements ProductListingService {
   private final String bucketName;
   @Value("${spring.cloud.aws.s3.endpoint}")
   private final String bucketHost;
+  @Value("${spring.cloud.aws.s3.public-endpoint}")
+  private final String publicBucketHost;
 
   public ProductListingServiceImpl(ProductListingRepository productListingRepository,
       UserRepository userRepository,
@@ -49,7 +51,8 @@ public class ProductListingServiceImpl implements ProductListingService {
       ProductListingSpecs productListingSpecs,
       S3Template s3Template,
       @Value("${spring.cloud.aws.s3.bucket-name}") String bucketName,
-      @Value("${spring.cloud.aws.s3.endpoint}") String bucketHost) {
+      @Value("${spring.cloud.aws.s3.endpoint}") String bucketHost,
+      @Value("${spring.cloud.aws.s3.public-endpoint}") String publicBucketHost) {
     this.productListingRepository = productListingRepository;
     this.userRepository = userRepository;
     this.productRepository = productRepository;
@@ -57,6 +60,7 @@ public class ProductListingServiceImpl implements ProductListingService {
     this.s3Template = s3Template;
     this.bucketName = bucketName;
     this.bucketHost = bucketHost;
+    this.publicBucketHost = publicBucketHost;
   }
 
   @Override
@@ -120,7 +124,7 @@ public class ProductListingServiceImpl implements ProductListingService {
             .contentType(productListing.getImageType())
             .contentLength((long) imageBytes.length)
             .build());
-    productListing.setImageUrl(bucketHost + "/" + bucketName + "/" + imageUrl);
+    productListing.setImageUrl(publicBucketHost + "/" + bucketName + "/" + imageUrl);
     return new ProductListingResponse(productListingRepository.save(productListing));
   }
 }

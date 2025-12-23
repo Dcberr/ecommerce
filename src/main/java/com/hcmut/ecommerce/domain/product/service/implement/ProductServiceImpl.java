@@ -35,17 +35,21 @@ public class ProductServiceImpl implements ProductService {
   private final String bucketName;
   @Value("${spring.cloud.aws.s3.endpoint}")
   private final String bucketHost;
+  @Value("${spring.cloud.aws.s3.public-endpoint}")
+  private final String publicBucketHost;
 
   public ProductServiceImpl(ProductRepository productRepository,
       CategoryRepository categoryRepository,
       S3Template s3Template,
       @Value("${spring.cloud.aws.s3.bucket-name}") String bucketName,
-      @Value("${spring.cloud.aws.s3.endpoint}") String bucketHost) {
+      @Value("${spring.cloud.aws.s3.endpoint}") String bucketHost,
+      @Value("${spring.cloud.aws.s3.public-endpoint}") String publicBucketHost) {
     this.productRepository = productRepository;
     this.categoryRepository = categoryRepository;
     this.s3Template = s3Template;
     this.bucketName = bucketName;
     this.bucketHost = bucketHost;
+    this.publicBucketHost = publicBucketHost;
   }
 
   @Override
@@ -87,7 +91,7 @@ public class ProductServiceImpl implements ProductService {
               .contentType(request.getImageType())
               .contentLength((long) imageBytes.length)
               .build());
-      product.setImageUrl(bucketHost + "/" + bucketName + "/" + imageUrl);
+      product.setImageUrl(publicBucketHost + "/" + bucketName + "/" + imageUrl);
       return new ProductResponse(productRepository.save(product));
     }
 

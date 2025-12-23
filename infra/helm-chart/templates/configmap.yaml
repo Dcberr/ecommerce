@@ -5,8 +5,10 @@ metadata:
   labels:
     {{- include "common.labels.standard" . | nindent 4 }}
 data:
-  SERVER_PORT: "8004"
+  SERVER_PORT: "8003"
   SPRING_APP_NAME: "ecommerce"
+  HOME_URL: http://localhost:3000/
+  ERROR_VALID_USER_URL: https://facebook.com/
 
   DATABASE_NAME: {{ .Values.global.postgresql.auth.database | default "ecommerce" }}
   DATABASE_USERNAME: {{ .Values.global.postgresql.auth.username | default "ecommerce_admin" }}
@@ -15,7 +17,7 @@ data:
 
   HIBERNATE_DIALECT: "org.hibernate.dialect.PostgreSQLDialect"
   HIBERNATE_DDL_AUTO: "update"
-  SHOW_SQL: "true"
+  SHOW_SQL: "false"
 
   REDIRECT_URI: {{ .Values.google.redirectUri | default "http://localhost:3000" }}
   GOOGLE_EXPIRATION_TIME: "3600000"

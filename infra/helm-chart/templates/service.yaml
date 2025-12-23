@@ -11,5 +11,5 @@ spec:
     {{- include "common.labels.matchLabels" . | nindent 4 }}
     tier: backend
   ports:
-    - port: 8004
-      targetPort: 8004
+    - port: 8003
+      targetPort: 8003

@@ -17,7 +17,7 @@ app:
   image:
     repository: "dcberr/ecommerce"
     pullPolicy: "IfNotPresent"
-    tag: ""
+    tag: "0.37.5"
     pullSecrets: []
 
   resources:
@@ -28,18 +28,64 @@ app:
       cpu: "250m"
       memory: "256Mi"
 
-google:
-  clientId: "your-google-client-id"
-  clientSecret: "your-google-client-secret"
-  redirectUri: "http://localhost:3000"
+  google:
+    clientId: "your-google-client-id"
+    clientSecret: "your-google-client-secret"
+    redirectUri: "http://localhost:8003/api/auth/google/callback"
+
+  ghtk:
+    baseUrl: "https://services-staging.ghtklab.com/services"
+    token: "your-ghtk-token"
+    partnerCode: "your-ghtk-partner-code"
+
+  momo:
+    accessKey: "your-momo-access-key"
+    secretKey: "your-momo-secret-key"
+    partnerCode: "your-momo-partner-code"
+    endPoint: "https://test-payment.momo.vn/v2/gateway/api/create"
+    ipnUrl: "http://your-domain.com/api/payment/callback"
+    redirectUrl: "http://your-redirect-url.com"
+
+  s3:
+    region: "ap-southeast-1"
+    bucketName: "images-ecommerce"
+    accessKey: "admin"
+    secretKey: "admin123"
 
 postgresql:
   enabled: "true"
   networkPolicy:
     enabled: "false"
   resourcesPreset: "small"
-# nodeSelector: {}
 
-# tolerations: []
+minio:
+  enabled: "true"
+  image:
+    repository: bitnamilegacy/minio
+  console:
+    image:
+      repository: bitnamilegacy/minio-object-browser
+  auth:
+    rootUser: "admin"
+    rootPassword: "admin123"
 
-# affinity: {}
+  defaultBuckets: "images-ecommerce"
+# garage:
+#   enabled: "true"
+#   garage:
+#     replicationFactor: "2"
+#     s3:
+#       api:
+#         region: "ap-southeast-1"
+
+#   deployement:
+#     replicas: 1
+
+#   persistence:
+#     enabled: true
+#     meta:
+#       storageClass: "standard"
+#       size: "500Mi"
+#     data:
+#       storageClass: "standard"
+#       size: "5Gi"

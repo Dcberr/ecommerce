@@ -27,6 +27,6 @@ public class CreateProductRequest {
   private String imageType;
 
   public Product toProduct() {
-    return new Product(null, name, baseUnit, null, imageType, price, discount, rating, location, null);
+    return new Product(null, name, baseUnit, null, imageType, price, discount, rating, location, null, null);
   }
 }

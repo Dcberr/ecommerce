@@ -35,31 +35,35 @@ public class UserController {
     private final UserService userService;
 
     @Operation(summary = "Get user's cart", description = "Retrieve items in the cart for the specified user", tags = {"Users"})
-    @GetMapping("/{id}/cart")
-    public ApiResponse<Set<CartResponse>> getCartByUserId(@PathVariable String id) throws Exception {
-        return ApiResponse.success(userService.getCart(id), "Get Cart By User Id Successfully!");
+    @GetMapping("/cart")
+    public ApiResponse<Set<CartResponse>> getCartByUserId() throws Exception {
+        return ApiResponse.success(userService.getCart(userService.getMyInfor().getId()), "Get Cart By User Id Successfully!");
     }
 
     @Operation(summary = "Add item to cart", description = "Add a product to the user's cart", tags = {"Users"})
-    @PostMapping("/{id}/cart")
+    @PostMapping("/cart")
     public ApiResponse<CartResponse> addToCart(@RequestBody CreateCartRequest request) throws Exception {
+        log.info(userService.getMyInfor().getId());
+        request.setBuyerId(userService.getMyInfor().getId());
         return ApiResponse.success(userService.addToCart(request), "Add To Cart Successfully!");
     }
 
     @Operation(summary = "Update cart item amount", description = "Update the quantity of a product in the user's cart", tags = {"Users"})
-    @PutMapping("/{id}/cart")
+    @PutMapping("/cart")
     public ApiResponse<Void> updateCartAmount(@RequestBody CreateCartRequest request) throws Exception {
+        request.setBuyerId(userService.getMyInfor().getId());
         userService.updateCartAmount(request);
         return ApiResponse.success(null, "Update Cart Amount Successfully!");
     }
 
-    @Operation(summary = "Remove item from cart", description = "Remove a specific product from the user's cart", tags = {"Users"})
-    @DeleteMapping("/{id}/cart")
-    public ApiResponse<Void> removeFromCart(@RequestBody CreateCartRequest request) throws Exception {
-        userService.removeFromCart(new com.hcmut.ecommerce.domain.cart.dto.request.DeleteCartRequest(
-                request.getBuyerId(), request.getSellerId(), request.getProductId()));
-        return ApiResponse.success(null, "Remove From Cart Successfully!");
-    }
+    // @Operation(summary = "Remove item from cart", description = "Remove a specific product from the user's cart", tags = {"Users"})
+    // @DeleteMapping("/cart")
+    // public ApiResponse<Void> removeFromCart(@RequestBody CreateCartRequest request) throws Exception {
+    //     request.setBuyerId(userService.getMyInfor().getId());
+    //     userService.removeFromCart(new com.hcmut.ecommerce.domain.cart.dto.request.DeleteCartRequest(
+    //             request.getBuyerId(), request.getSellerId(), request.getProductId()));
+    //     return ApiResponse.success(null, "Remove From Cart Successfully!");
+    // }
 
     @Operation(summary = "Clear cart", description = "Clear all items in the user's cart", tags = {"Users"})
     @DeleteMapping("/{id}/cart/clear")

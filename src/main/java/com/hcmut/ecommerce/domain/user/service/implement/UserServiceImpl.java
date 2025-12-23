@@ -12,6 +12,8 @@ import com.hcmut.ecommerce.domain.cart.dto.request.DeleteCartRequest;
 import com.hcmut.ecommerce.domain.cart.dto.response.CartResponse;
 import com.hcmut.ecommerce.domain.cart.model.Cart;
 import com.hcmut.ecommerce.domain.cart.repository.CartRepository;
+import com.hcmut.ecommerce.domain.product.model.Product;
+import com.hcmut.ecommerce.domain.product.repository.ProductRepository;
 import com.hcmut.ecommerce.domain.productListing.model.ProductListing;
 import com.hcmut.ecommerce.domain.productListing.repository.ProductListingRepository;
 import com.hcmut.ecommerce.domain.user.dto.request.FirstLoginInforRequest;
@@ -35,6 +37,7 @@ public class UserServiceImpl implements UserService {
   private final UserRepository userRepository;
   private final CartRepository cartRepository;
   private final ProductListingRepository listingRepository;
+  private final ProductRepository productRepository;
 
   @Override
   public Set<CartResponse> getCart(String userId) {
@@ -47,24 +50,25 @@ public class UserServiceImpl implements UserService {
     Cart cart = request.toCart();
     User buyer = userRepository.findById(request.getBuyerId()).orElseThrow();
     cart.setBuyer(buyer);
-    ProductListing listing = listingRepository.findById(cart.getId().getListingId())
+    Product product = productRepository.findById(cart.getId().getProductId())
         .orElseThrow();
-    cart.setListing(listing);
+    cart.setProduct(product);
     return new CartResponse(cartRepository.save(cart));
   }
 
   @Override
   public void removeFromCart(DeleteCartRequest request) {
     Cart.CartId cartId = new Cart.CartId(request.getBuyerId(),
-        new ProductListing.ProductListingId(request.getSellerId(), request.getProductId()));
+        request.getProductId());
     cartRepository.deleteById(cartId);
   }
 
   @Override
   @Transactional
   public void updateCartAmount(CreateCartRequest request) {
+    String sellerId = productRepository.findById(request.getProductId()).orElseThrow().getSellerId();
     if (request.getAmount() <= 0) {
-      removeFromCart(new DeleteCartRequest(request.getBuyerId(), request.getSellerId(), request.getProductId()));
+      removeFromCart(new DeleteCartRequest(request.getBuyerId(), sellerId, request.getProductId()));
       return;
     }
     Cart cart = request.toCart();

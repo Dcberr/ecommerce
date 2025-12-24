@@ -8,4 +8,5 @@ import com.hcmut.ecommerce.domain.order.model.Order;
 
 public interface OrderRepository extends JpaRepository<Order, String> {
     List<Order> findOrderBySellerId(String sellerId);
+    List<Order> findOrderByBuyerId(String buyerId);
 }

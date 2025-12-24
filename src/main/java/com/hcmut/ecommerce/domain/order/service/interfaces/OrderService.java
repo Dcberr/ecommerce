@@ -14,4 +14,8 @@ public interface OrderService {
     public Order updateOrder(String id, Integer totalAmount);
     public void deleteOrder(String id);
     public List<Order> getOrderBySellerId();
+    public List<Order> getOrderByBuyerId();
+    public void confirmOrder(String id);
+    public void completeOrder(String id);
+    public void cancelOrder(String id);
 }

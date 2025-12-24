@@ -179,7 +179,7 @@ public class MomoPaymentServiceImpl implements MomoPaymentService {
             Order order = orderRepository.findById(callback.getOrderId())
                         .orElseThrow(() -> new RuntimeException("Order not found with id " + callback.getOrderId()));
             
-            order.setOrderStatus(OrderStatus.DELIVERING);
+            // order.setOrderStatus(OrderStatus.DELIVERING);
             order.getEscrow().setEscrowStatus(EscrowStatus.HOLDING);
             orderRepository.save(order);
 

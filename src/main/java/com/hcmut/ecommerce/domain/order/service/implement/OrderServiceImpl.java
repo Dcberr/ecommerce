@@ -17,6 +17,7 @@ import com.hcmut.ecommerce.domain.order.service.interfaces.DeliveryService;
 import com.hcmut.ecommerce.domain.order.service.interfaces.OrderService;
 import com.hcmut.ecommerce.domain.payment.model.Escrow;
 import com.hcmut.ecommerce.domain.payment.model.Escrow.EscrowStatus;
+import com.hcmut.ecommerce.domain.payment.repository.EscrowRepository;
 import com.hcmut.ecommerce.domain.payment.service.interfaces.EscrowService;
 import com.hcmut.ecommerce.domain.product.repository.ProductRepository;
 import com.hcmut.ecommerce.domain.user.model.User;
@@ -33,6 +34,7 @@ public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
     private final EscrowService escrowService;
+    private final EscrowRepository escrowRepository;
     private final UserRepository userRepository;
     private final UserService userService;
     private final DeliveryService deliveryService;
@@ -110,7 +112,7 @@ public class OrderServiceImpl implements OrderService {
             .totalProductPrice(totalProductPrice)
             .shippingFee(shippingFee)
             .pick_money(totalProductPrice + shippingFee)
-            .orderStatus(OrderStatus.UNPAID)
+            .orderStatus(OrderStatus.WAITING)
             .note(request.getNote())
             .transport("road")
             .createdAt(LocalDateTime.now())
@@ -166,9 +168,37 @@ public class OrderServiceImpl implements OrderService {
         );
     }
 
+    public List<Order> getOrderByBuyerId() {
+        return orderRepository.findOrderByBuyerId(
+            userService.getMyInfor().getId()
+        );
+    }
+
     public List<Order> getAllOrders() { return orderRepository.findAll(); }
 
     public Order updateOrder(String id, Integer totalAmount) { Order order = getOrderById(id); order.setPick_money(totalAmount); return orderRepository.save(order); } 
     
     public void deleteOrder(String id) { orderRepository.deleteById(id); }
+
+    public void confirmOrder(String id) {
+        Order order = getOrderById(id);
+        order.setOrderStatus(OrderStatus.DELIVERING);
+        orderRepository.save(order);
+    }
+
+    public void completeOrder(String id) {
+        Order order = getOrderById(id);
+        order.setOrderStatus(OrderStatus.DELIVERED);
+        Escrow escrow = order.getEscrow();
+        escrow.setEscrowStatus(EscrowStatus.RELEASE);
+        escrow.setReleaseAt(LocalDateTime.now());
+        escrowRepository.save(escrow);
+        orderRepository.save(order);
+    }
+
+    public void cancelOrder(String id) {
+        Order order = getOrderById(id);
+        order.setOrderStatus(OrderStatus.CANCELLED);
+        orderRepository.save(order);
+    }
 }

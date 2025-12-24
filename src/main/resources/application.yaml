@@ -57,6 +57,7 @@ spring:
       s3:
         enabled: true
         endpoint: ${S3_HOST}
+        public-endpoint: ${S3_PUBLIC_HOST}
         region: ${S3_REGION}
         bucket-name: ${S3_BUCKET_NAME}
         path-style-access-enabled: true

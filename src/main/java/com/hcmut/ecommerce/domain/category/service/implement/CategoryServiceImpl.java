@@ -27,15 +27,19 @@ public class CategoryServiceImpl implements CategoryService {
   private final String bucketName;
   @Value("${spring.cloud.aws.s3.endpoint}")
   private final String bucketHost;
+  @Value("${spring.cloud.aws.s3.public-endpoint}")
+  private final String publicBucketHost;
   private final String categoryImageFolder = "category-images";
 
   public CategoryServiceImpl(CategoryRepository categoryRepository, S3Template s3Template,
       @Value("${spring.cloud.aws.s3.bucket-name}") String bucketName,
-      @Value("${spring.cloud.aws.s3.endpoint}") String bucketHost) {
+      @Value("${spring.cloud.aws.s3.endpoint}") String bucketHost,
+      @Value("${spring.cloud.aws.s3.public-endpoint}") String publicBucketHost) {
     this.categoryRepository = categoryRepository;
     this.s3Template = s3Template;
     this.bucketName = bucketName;
     this.bucketHost = bucketHost;
+    this.publicBucketHost = publicBucketHost;
   }
 
   @Override
@@ -65,7 +69,7 @@ public class CategoryServiceImpl implements CategoryService {
             .contentLength((long) imageBytes.length)
             .contentType(category.getImageType())
             .build());
-    category.setImageUrl(bucketHost + "/" + bucketName + "/" + imageUrl);
+    category.setImageUrl(publicBucketHost + "/" + bucketName + "/" + imageUrl);
     return new CategoryResponse(categoryRepository.save(category));
   }
 }

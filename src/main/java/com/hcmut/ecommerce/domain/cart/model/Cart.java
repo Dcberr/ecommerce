@@ -2,6 +2,7 @@ package com.hcmut.ecommerce.domain.cart.model;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.hcmut.ecommerce.domain.product.model.Product;
 import com.hcmut.ecommerce.domain.productListing.model.ProductListing;
 import com.hcmut.ecommerce.domain.productListing.model.ProductListing.ProductListingId;
@@ -35,11 +36,13 @@ public class Cart {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "buyer_id", nullable = false)
   @MapsId("buyerId")
+  @JsonBackReference
   private User buyer;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "product_id", nullable = false)
   @MapsId("productId")
+  @JsonBackReference
   private Product product;
 
   @NonNull

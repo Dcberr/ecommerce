@@ -7,7 +7,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.hcmut.ecommerce.common.response.ApiResponse;
+import com.hcmut.ecommerce.domain.user.model.User;
 import com.hcmut.ecommerce.domain.user.service.interfaces.AuthService;
+import com.hcmut.ecommerce.domain.user.service.interfaces.UserService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -25,6 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 public class AuthController {
 
     private final AuthService authService;
+    private final UserService userService;
 
     // @Operation(
     //     summary = "Login with Google",
@@ -68,5 +72,13 @@ public class AuthController {
         }
         return Map.of("accessToken", token);
     }
+
+    @GetMapping("/me")
+    public ApiResponse<User> me(HttpServletRequest request) {
+        User user = userService.getMyInfor(); // đọc từ accessToken trong cookie
+        System.out.println("User info: " + user.toString());
+        return ApiResponse.success(user);
+    }
+
 
 }

@@ -1,5 +1,7 @@
 package com.hcmut.ecommerce.domain.order.dto.request;
 
+import java.util.List;
+
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -8,9 +10,14 @@ import lombok.Setter;
 @Setter
 @Builder
 public class CreateOrderRequest {
-    private Integer totalProductPrice;
-    private String buyerId;
-    private String sellerId;
+
+    // private String sellerId;
+    private List<OrderItemRequest> items;
     private String note;
-    // private Long amount;
+
+    @Getter @Setter
+    public static class OrderItemRequest {
+        private Long productId;
+        private Integer quantity;
+    }
 }

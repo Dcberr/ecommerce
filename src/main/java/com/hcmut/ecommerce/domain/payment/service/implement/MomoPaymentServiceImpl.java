@@ -121,7 +121,7 @@ public class MomoPaymentServiceImpl implements MomoPaymentService {
         requestBody.put("orderInfo", orderInfo);
         requestBody.put("partnerCode", PARTNER_CODE);
         requestBody.put("redirectUrl",
-                MOMO_REDIRECT_URL);
+                "http://localhost:3000/");
         requestBody.put("requestId", String.valueOf(request.getOrderId()));
         requestBody.put("requestType", requestType);
         // requestBody.put("extraData",

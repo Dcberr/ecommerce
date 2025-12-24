@@ -163,7 +163,14 @@ public class AuthServiceImpl implements AuthService {
             response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
             // Redirect to homepage
-            response.sendRedirect(homeUrl + "/oauth-success");
+            if (role.equals("SELLER")) {
+                response.sendRedirect(homeUrl + "/seller-oauth-success");
+                return;
+            } else {
+                response.sendRedirect(homeUrl + "/buyer-oauth-success");
+                return;
+            }
+            // response.sendRedirect(homeUrl + "/oauth-success");
         } catch (Exception e) {
             log.error("Error during Google callback: {}", e.getMessage());
             // Redirect to an error page or display an error message

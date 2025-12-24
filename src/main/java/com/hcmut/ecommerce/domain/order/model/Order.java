@@ -1,5 +1,9 @@
 package com.hcmut.ecommerce.domain.order.model;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.hcmut.ecommerce.domain.payment.model.Escrow;
@@ -15,6 +19,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -51,26 +56,35 @@ public class Order {
         private String note;
         private String is_freeship; 
     
-    private Integer shippingFee;
-    private Integer totalProductPrice;
-
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "buyer_id", nullable = false)
     @JsonBackReference
     private User buyer;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "seller_id", nullable = false)
     @JsonBackReference
     private User seller;
 
+    // ===== Danh sách sản phẩm =====
+    @OneToMany(
+        mappedBy = "order",
+        cascade = CascadeType.ALL,
+        orphanRemoval = true
+    )
+    @JsonManagedReference
+    private List<OrderItem> items = new ArrayList<>();
+
+
+    private Integer shippingFee;
+    private Integer totalProductPrice;
+
+    private LocalDateTime createdAt;
+
     @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus;
 
-    // private Float totalAmount;
-
-    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
+    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
     private Escrow escrow;
 
     public enum OrderStatus {

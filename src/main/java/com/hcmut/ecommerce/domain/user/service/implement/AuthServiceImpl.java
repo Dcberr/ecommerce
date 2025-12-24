@@ -2,6 +2,7 @@ package com.hcmut.ecommerce.domain.user.service.implement;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
@@ -14,6 +15,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -143,14 +145,25 @@ public class AuthServiceImpl implements AuthService {
         try {
             AuthResponse authResponse = loginWithGoogle(request);
             String accessToken = authResponse.getAccessToken();
-            Cookie cookie = new Cookie("accessToken", accessToken);
-            cookie.setHttpOnly(false); // true if you want backend-only
-            cookie.setPath("/");
-            cookie.setMaxAge(60 * 60 * 24); // 1 day
-            response.addCookie(cookie);
+            // Cookie cookie = new Cookie("accessToken", accessToken);
+            // cookie.setHttpOnly(false); // true if you want backend-only
+            // cookie.setPath("/");
+            // cookie.setSecure(true);
+            // cookie.setMaxAge(60 * 60 * 24); // 1 day
+            // response.addCookie(cookie);
+
+            ResponseCookie cookie = ResponseCookie.from("accessToken", accessToken)
+                .httpOnly(true)
+                .secure(false)        // localhost
+                .sameSite("Lax")
+                .path("/")
+                .maxAge(Duration.ofDays(1))
+                .build();
+
+            response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
             // Redirect to homepage
-            response.sendRedirect(homeUrl);
+            response.sendRedirect(homeUrl + "/oauth-success");
         } catch (Exception e) {
             log.error("Error during Google callback: {}", e.getMessage());
             // Redirect to an error page or display an error message

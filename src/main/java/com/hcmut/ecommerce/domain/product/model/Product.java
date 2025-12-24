@@ -49,6 +49,8 @@ public class Product {
   private Float rating;
   private String location;
 
+  private String sellerId;
+
   // @NonNull
   @ManyToMany(fetch = FetchType.LAZY)
   @JoinTable(name = "product_categories", joinColumns = @JoinColumn(name = "product_id"), inverseJoinColumns = @JoinColumn(name = "category_id"))

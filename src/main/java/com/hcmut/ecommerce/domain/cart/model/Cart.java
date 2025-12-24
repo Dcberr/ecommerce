@@ -2,6 +2,7 @@ package com.hcmut.ecommerce.domain.cart.model;
 
 import java.io.Serializable;
 
+import com.hcmut.ecommerce.domain.product.model.Product;
 import com.hcmut.ecommerce.domain.productListing.model.ProductListing;
 import com.hcmut.ecommerce.domain.productListing.model.ProductListing.ProductListingId;
 import com.hcmut.ecommerce.domain.user.model.User;
@@ -37,12 +38,9 @@ public class Cart {
   private User buyer;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumns({
-      @JoinColumn(name = "product_id", nullable = false),
-      @JoinColumn(name = "seller_id", nullable = false)
-  })
-  @MapsId("listingId")
-  private ProductListing listing;
+  @JoinColumn(name = "product_id", nullable = false)
+  @MapsId("productId")
+  private Product product;
 
   @NonNull
   private Long amount;
@@ -52,10 +50,12 @@ public class Cart {
   @NoArgsConstructor
   @AllArgsConstructor
   public static class CartId implements Serializable {
+
     @NonNull
     private String buyerId;
-    @NonNull
-    private ProductListingId listingId;
-  }
 
+    @NonNull
+    private Long productId;
+  }
 }
+

@@ -37,13 +37,19 @@ import io.swagger.v3.oas.models.tags.Tag;
 public class SecurityConfig {
 
     @Autowired
+    private CookieBearerTokenResolver cookieBearerTokenResolver;
+
+
+    @Autowired
     private CustomJwtDecoder customJwtDecoder;
     
     @Value("${server.port}")
     private String serverPort;
 
     private final String[] PUBLIC_ENDPOINTS = {
-        "/api/**",
+        // "/api/**",
+        "/api/products",
+        "/api/categories",
         "/api/auth/**",
         "/auth/google",
         "/api/payment/callback",
@@ -61,10 +67,14 @@ public class SecurityConfig {
                         .requestMatchers("/ws/**").permitAll()
                         .anyRequest().authenticated());
 
-        httpSecurity.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer -> jwtConfigurer
+        httpSecurity.oauth2ResourceServer(oauth2 -> oauth2
+            .bearerTokenResolver(cookieBearerTokenResolver) 
+            .jwt(jwtConfigurer -> jwtConfigurer
                 .decoder(customJwtDecoder)
                 .jwtAuthenticationConverter(jwtAuthenticationConverter())
-        ));
+            )
+        );
+
 
         httpSecurity.csrf(AbstractHttpConfigurer::disable);
         return httpSecurity.build();

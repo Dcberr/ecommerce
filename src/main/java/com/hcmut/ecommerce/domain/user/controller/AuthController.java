@@ -1,5 +1,7 @@
 package com.hcmut.ecommerce.domain.user.controller;
 
+import java.util.Map;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -9,6 +11,8 @@ import com.hcmut.ecommerce.domain.user.service.interfaces.AuthService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -51,4 +55,18 @@ public class AuthController {
     ) throws Exception {
         authService.googleCallback(code, role, response);
     }
+
+    @GetMapping("/me/token")
+    public Map<String, String> getTokenFromCookie(HttpServletRequest request) {
+        String token = null;
+        if (request.getCookies() != null) {
+            for (Cookie c : request.getCookies()) {
+                if ("accessToken".equals(c.getName())) {
+                    token = c.getValue();
+                }
+            }
+        }
+        return Map.of("accessToken", token);
+    }
+
 }

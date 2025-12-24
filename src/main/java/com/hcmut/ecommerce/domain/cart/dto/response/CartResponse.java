@@ -18,9 +18,9 @@ public class CartResponse {
 
   public CartResponse(Cart cart) {
     this.buyerId = cart.getBuyer().getId();
-    this.sellerId = cart.getListing().getSeller().getId();
-    this.productId = cart.getListing().getId().getProductId();
+    this.sellerId = cart.getProduct().getSellerId();
+    this.productId = cart.getProduct().getId();
     this.amount = cart.getAmount();
-    this.sellerName = cart.getListing().getSeller().getName();
+    // this.sellerName = cart.getProduct().getSeller().getName();
   }
 }

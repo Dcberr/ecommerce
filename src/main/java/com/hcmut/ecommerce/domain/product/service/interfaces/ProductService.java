@@ -12,4 +12,7 @@ public interface ProductService {
       throws Exception;
 
   public ProductResponse createProduct(CreateProductRequest request) throws Exception;
+
+  public Page<ProductResponse> getProductBySellerId( Integer pageSize, Integer page, String sortBy, Boolean desc)
+      throws Exception;
 }

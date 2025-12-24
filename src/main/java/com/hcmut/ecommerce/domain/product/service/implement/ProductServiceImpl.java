@@ -7,6 +7,7 @@ import com.hcmut.ecommerce.domain.product.dto.response.ProductResponse;
 import com.hcmut.ecommerce.domain.product.model.Product;
 import com.hcmut.ecommerce.domain.product.repository.ProductRepository;
 import com.hcmut.ecommerce.domain.product.service.interfaces.ProductService;
+import com.hcmut.ecommerce.domain.user.service.interfaces.UserService;
 
 import io.awspring.cloud.s3.ObjectMetadata;
 import io.awspring.cloud.s3.S3Template;
@@ -29,6 +30,7 @@ public class ProductServiceImpl implements ProductService {
 
   private final ProductRepository productRepository;
   private final CategoryRepository categoryRepository;
+  private final UserService userService;
   private final S3Template s3Template;
   private final String productImageFolder = "product-images";
   @Value("${spring.cloud.aws.s3.bucket-name}")
@@ -40,12 +42,14 @@ public class ProductServiceImpl implements ProductService {
 
   public ProductServiceImpl(ProductRepository productRepository,
       CategoryRepository categoryRepository,
+      UserService userService,
       S3Template s3Template,
       @Value("${spring.cloud.aws.s3.bucket-name}") String bucketName,
       @Value("${spring.cloud.aws.s3.endpoint}") String bucketHost,
       @Value("${spring.cloud.aws.s3.public-endpoint}") String publicBucketHost) {
     this.productRepository = productRepository;
     this.categoryRepository = categoryRepository;
+    this.userService = userService;
     this.s3Template = s3Template;
     this.bucketName = bucketName;
     this.bucketHost = bucketHost;
@@ -92,9 +96,21 @@ public class ProductServiceImpl implements ProductService {
               .contentLength((long) imageBytes.length)
               .build());
       product.setImageUrl(publicBucketHost + "/" + bucketName + "/" + imageUrl);
+      log.info(userService.getMyInfor().getId());
+      String sellerId = userService.getMyInfor().getId();
+
+      product.setSellerId(sellerId);
       return new ProductResponse(productRepository.save(product));
     }
 
     return new ProductResponse(productRepository.save(product));
+  }
+
+  public Page<ProductResponse> getProductBySellerId(Integer pageSize, Integer page, String sortBy, Boolean desc) {
+    String sellerId = userService.getMyInfor().getId();
+    Pageable pageable = PageRequest.of(page, pageSize,
+        desc ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending());
+    Page<Product> products = productRepository.findBySellerId(sellerId, pageable);
+    return products.map(ProductResponse::new);
   }
 }

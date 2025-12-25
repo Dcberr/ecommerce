@@ -19,5 +19,5 @@ data:
   HIBERNATE_DDL_AUTO: "update"
   SHOW_SQL: "false"
 
-  REDIRECT_URI: {{ .Values.google.redirectUri | default "http://localhost:3000" }}
+  REDIRECT_URI: {{ .Values.app.google.redirectUri | default "http://localhost:3000" }}
   GOOGLE_EXPIRATION_TIME: "3600000"

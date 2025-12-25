@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: {{ .Values.app.image.repository }}:{{ .Values.app.image.tag | default .Chart.AppVersion }}
+        image: {{ .Values.app.image.backend.repository }}:{{ .Values.app.image.backend.tag | default .Chart.AppVersion }}
         imagePullPolicy: {{ .Values.app.image.pullPolicy }}
         ports:
         - containerPort: 8003
@@ -29,3 +29,35 @@ spec:
             name: {{ .Release.Name }}-backend-config
         - secretRef:
             name: {{ .Release.Name }}-backend-secrets
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-frontend
+  labels:
+    {{- include "common.labels.standard" . | nindent 4 }}
+    tier: frontend
+spec:
+  replicas: {{ .Values.app.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "common.labels.matchLabels" . | nindent 6 }}
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        {{- include "common.labels.standard" . | nindent 8 }}
+        tier: frontend
+    spec:
+      containers:
+      - name: frontend
+        image: {{ .Values.app.image.frontend.repository }}:{{ .Values.app.image.frontend.tag | default .Chart.AppVersion }}
+        imagePullPolicy: {{ .Values.app.image.pullPolicy }}
+        ports:
+        - containerPort: 3000
+        # envFrom:
+        # - configMapRef:
+        #     name: {{ .Release.Name }}-backend-config
+        # - secretRef:
+        #     name: {{ .Release.Name }}-backend-secrets

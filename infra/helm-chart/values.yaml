@@ -15,9 +15,14 @@ app:
   replicaCount: "2"
 
   image:
-    repository: "dcberr/ecommerce"
+    frontend:
+      repository: "kng1259/ecommerce-frontend"
+      tag: "latest"
+    backend:
+      repository: "kng1259/ecommerce-backend"
+      tag: "latest"
     pullPolicy: "IfNotPresent"
-    tag: "0.37.5"
+    # tag: "0.37.5"
     pullSecrets: []
 
   resources:
@@ -47,6 +52,7 @@ app:
     redirectUrl: "http://your-redirect-url.com"
 
   s3:
+    publicUrl: http://localhost:9000
     region: "ap-southeast-1"
     bucketName: "images-ecommerce"
     accessKey: "admin"

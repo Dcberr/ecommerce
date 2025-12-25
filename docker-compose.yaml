@@ -22,48 +22,30 @@ services:
       timeout: 5s
       retries: 5
 
-  # ecommerce:
-  #   image: dcberr/ecommerce:0.37.3
-  #   container_name: ecommerce_service
-  #   restart: always
-  #   depends_on:
-  #     postgres:
-  #       condition: service_healthy
-  #   ports:
-  #     - "8004:8004"
-  #   env_file:
-  #     - .env
-  #   environment:
-  #     # Database Configuration
-  #     SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:${DATABASE_PORT}/${DATABASE_NAME}
-  #     DATABASE_USERNAME: ${DATABASE_USERNAME}
-  #     DATABASE_PASSWORD: ${DATABASE_PASSWORD}
-  #     DATABASE_PORT: ${DATABASE_PORT}
-  #     DATABASE_HOST: postgres
-  #     #JPA Configuration
-  #     HIBERNATE_DDL_AUTO: none
-  #     HIBERNATE_DIALECT: ${HIBERNATE_DIALECT}
-  #     # Application Configuration
-  #     SPRING_APP_NAME: ${SPRING_APP_NAME}
-  #     SERVER_PORT: 8004
-  #     HOME_URL: ${HOME_URL}
-  #     ERROR_VALID_USER_URL: ${ERROR_VALID_USER_URL}
-  #     # Google Cloud Configuration
-  #     CLIENT_ID: ${CLIENT_ID}
-  #     CLIENT_SECRET: ${CLIENT_SECRET}
-  #     REDIRECT_URI: ${REDIRECT_URI}
-  #     GOOGLE_EXPIRATION_TIME: ${GOOGLE_EXPIRATION_TIME}
-  #     # GHTK Configuration
-  #     GHTK_BASE_URL: ${GHTK_BASE_URL}
-  #     GHTK_TOKEN: ${GHTK_TOKEN}
-  #     GHTK_PARTNER_CODE: ${GHTK_PARTNER_CODE}
-  #     # Momo Configuration
-  #     ACCESS_KEY: ${ACCESS_KEY}
-  #     SECRET_KEY: ${SECRET_KEY}
-  #     PARTNER_CODE: ${PARTNER_CODE}
-  #     END_POINT: ${END_POINT}
-  #     IPN_URL: ${IPN_URL}
-  #     MOMO_REDIRECT_URL: ${MOMO_REDIRECT_URL}
+  ecommerce_service:
+    image: kng1259/ecommerce-backend:latest
+    container_name: ecommerce_service
+    # restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8003:8003"
+    env_file:
+      - .env
+    environment:
+      DATABASE_HOST: postgres
+      S3_HOST: http://minio:9000
+
+  ecommerce_frontend:
+    image: kng1259/ecommerce-frontend:latest
+    container_name: ecommerce_frontend
+    restart: always
+    depends_on:
+      ecommerce_service:
+        condition: service_started
+    ports:
+      - "3000:3000"
 
   minio:
     image: minio/minio:RELEASE.2025-04-22T22-12-26Z

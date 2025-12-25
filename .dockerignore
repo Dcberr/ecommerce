@@ -1,0 +1,59 @@
+# Maven
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# Gradle
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# IDE
+.idea/
+*.iws
+*.iml
+*.ipr
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Git
+.git/
+.gitignore
+
+# Docker
+Dockerfile*
+docker-compose*
+.docker/
+
+# Documentation
+README.md
+LICENSE
+docs/
+
+# Test files
+**/src/test/
+
+# Environment files
+.env
+.env.*
+*.env
+
+# Temporary files
+*.tmp
+*.bak
+*.orig
+
+infra
+garage

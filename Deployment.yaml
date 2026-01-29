@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+ name: ecommerce-service
+spec:
+ replicas: 3   
+ selector:
+   matchLabels:
+     app: ecommerce-service
+ template:
+   metadata:
+     labels:
+       app: ecommerce-service
+   spec:
+     containers:
+     - name: ecommerce-service
+       image: dcberr/ecommerce:0.37.6
+       env:
+       - name: SPRING_DATASOURCE_URL
+         value: "jdbc:postgresql://postgres:${DATABASE_PORT}/${DATABASE_NAME}"  
+       ports:
+       - containerPort: 80

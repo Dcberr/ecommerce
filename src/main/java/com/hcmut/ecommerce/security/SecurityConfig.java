@@ -48,16 +48,15 @@ public class SecurityConfig {
 
     private final String[] PUBLIC_ENDPOINTS = {
         // "/api/**",
-        "/api/products/**",
-        "/api/categories",
-        "/api/auth/google/callback",
-        "/api/auth/me/token",
-        "/auth/google",
-        "/api/payment/callback",
+        "/products/**",
+        "/categories",
+        "/auth/google/callback",
+        "/auth/me/token",
+        "/payment/callback",
         "/swagger-ui/**",
         "/v3/api-docs/**",
         "/webjars/**"
-};
+    };
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {

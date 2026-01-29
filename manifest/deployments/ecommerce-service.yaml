@@ -1,0 +1,140 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ecommerce
+  namespace: ecommerce
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ecommerce
+  template:
+    metadata:
+      labels:
+        app: ecommerce
+    spec:
+      containers:
+        - name: ecommerce
+          image: dcberr/ecommerce:0.37.6
+          ports:
+            - containerPort: 8004
+
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "500m"
+            limits:
+              memory: "768Mi"
+              cpu: "1"
+
+          env:
+            # JVM
+            - name: JAVA_OPTS
+              value: "-Xms256m -Xmx512m"
+
+            # App
+            - name: SPRING_APP_NAME
+              value: ecommerce
+            - name: SERVER_PORT
+              value: "8004"
+
+            # Database
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:postgresql://postgres:5432/ecommerce
+            - name: DATABASE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: ecommerce-secret
+                  key: DATABASE_USERNAME
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: ecommerce-secret
+                  key: DATABASE_PASSWORD
+
+            # JPA
+            - name: HIBERNATE_DDL_AUTO
+              value: update
+            - name: SHOW_SQL
+              value: "true"
+            - name: HIBERNATE_DIALECT
+              value: org.hibernate.dialect.PostgreSQLDialect
+
+            # URLs (⚠️ không dùng localhost)
+            - name: HOME_URL
+              value: http://ecommerce.local
+            - name: ERROR_VALID_USER_URL
+              value: http://ecommerce.local/error/valid-user
+
+            # S3 / MinIO
+            - name: S3_HOST
+              value: http://minio:9000
+            - name: S3_PUBLIC_HOST
+              value: http://minio:9000
+            - name: S3_REGION
+              value: ap-southeast-1
+            - name: S3_BUCKET_NAME
+              value: images-ecommerce
+
+            # Google OAuth
+            - name: CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: ecommerce-secret
+                  key: CLIENT_ID
+            - name: CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: ecommerce-secret
+                  key: CLIENT_SECRET
+            - name: REDIRECT_URI
+              value: http://ecommerce.local/api/auth/google/callback
+            - name: GOOGLE_EXPIRATION_TIME
+              value: "3600000"
+
+            # GHTK
+            - name: GHTK_BASE_URL
+              value: https://services-staging.ghtklab.com/services
+            - name: GHTK_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: ecommerce-secret
+                  key: GHTK_TOKEN
+            - name: GHTK_PARTNER_CODE
+              valueFrom:
+                secretKeyRef:
+                  name: ecommerce-secret
+                  key: GHTK_PARTNER_CODE
+
+            # MOMO
+            - name: ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: ecommerce-secret
+                  key: MOMO_ACCESS_KEY
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: ecommerce-secret
+                  key: MOMO_SECRET_KEY
+            
+            #S3 Bucket
+            - name: S3_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: ecommerce-secret
+                  key: S3_ACCESS_KEY
+
+            - name: S3_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: ecommerce-secret
+                  key: S3_SECRET_KEY
+            - name: PARTNER_CODE
+              value: MOMO
+            - name: END_POINT
+              value: https://test-payment.momo.vn/v2/gateway/api/create
+            - name: IPN_URL
+              value: https://ecommerce.local/api/payment/callback
+            - name: MOMO_REDIRECT_URL
+              value: https://facebook.com
